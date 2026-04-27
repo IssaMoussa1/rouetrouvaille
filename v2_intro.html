@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pour toi 🩶</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lora:ital,wght@0,400;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+
+  body {
+    min-height:100vh;
+    background: linear-gradient(180deg, #d0d0d8 0%, #e2e2e8 40%, #ebebf0 100%);
+    font-family:'Fredoka One',cursive;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; position:relative;
+  }
+
+  /* ── Sky layer — clouds live here ── */
+  .sky {
+    position:fixed; top:0; left:0;
+    width:100%; height:100%;
+    pointer-events:none; z-index:0;
+    overflow:hidden;
+  }
+
+  /* Individual cloud made of overlapping circles */
+  .cloud {
+    position:absolute;
+    animation: drift linear infinite;
+  }
+
+  @keyframes drift {
+    from { transform: translateX(110vw); }
+    to   { transform: translateX(-60vw); }
+  }
+
+  .cloud svg {
+    filter: drop-shadow(0 4px 12px rgba(150,150,160,0.25));
+  }
+
+  /* ── Floating silver hearts ── */
+  .hearts-bg {
+    position:fixed; top:0; left:0;
+    width:100%; height:100%;
+    pointer-events:none; z-index:1;
+  }
+  .heart-float {
+    position:absolute; opacity:0;
+    animation:floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0%   { transform:translateY(100vh) scale(0.5); opacity:0; }
+    10%  { opacity:0.5; } 90% { opacity:0.2; }
+    100% { transform:translateY(-10vh) scale(1.2); opacity:0; }
+  }
+
+  /* ── Card ── */
+  .card {
+    position:relative; z-index:2;
+    background:rgba(255,255,255,0.78);
+    backdrop-filter:blur(16px);
+    border-radius:28px;
+    padding:48px 44px 44px;
+    max-width:480px; width:90%;
+    box-shadow:0 20px 60px rgba(100,100,120,0.12), 0 4px 20px rgba(0,0,0,0.05);
+    text-align:center;
+    animation:cardIn 0.8s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity:0; transform:translateY(30px) scale(0.95); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .top-hearts { font-size:28px; margin-bottom:20px; animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+
+  h1 {
+    font-family:'Fredoka One',cursive; font-size:28px;
+    color:#c8385a; margin-bottom:28px; font-weight:400;
+  }
+
+  .text-block {
+    font-family:'Lora',serif; font-size:15.5px;
+    color:#5a5a72; line-height:1.9; text-align:center;
+  }
+  .text-block p { margin-bottom:14px; }
+  .text-block p:last-child { margin-bottom:0; }
+
+  .bottom-heart {
+    font-size:22px; margin-top:24px; display:block;
+    animation:pulse 2s ease-in-out infinite 0.5s;
+  }
+
+  .btn-continuer {
+    display:inline-block; margin-top:36px; padding:14px 40px;
+    background:linear-gradient(135deg,#e8597a,#c8385a);
+    color:white; font-family:'Fredoka One',cursive;
+    font-size:17px; font-weight:400;
+    border:none; border-radius:50px; cursor:pointer;
+    box-shadow:0 6px 20px rgba(200,56,90,0.30);
+    transition:transform 0.2s, box-shadow 0.2s;
+    text-decoration:none;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+  .btn-continuer:hover { transform:translateY(-2px) scale(1.03); }
+  .btn-continuer:active { transform:scale(0.98); }
+</style>
+</head>
+<body>
+
+<!-- Sky with animated clouds -->
+<div class="sky" id="sky"></div>
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="card">
+  <div class="top-hearts">🩶 🩷 🩶</div>
+  <h1>Sirine</h1>
+  <div class="text-block">
+    <p>Je préfère passer chaque jour sans toi avec l'espoir de te retrouver plutôt qu'un seul jour avec la certitude de t'avoir perdue pour toujours.</p>
+    <p>Je brûle d'amour pour toi. D'un amour du cœur mais aussi d'un amour qui veut ton bien, qui veut te voir heureuse, grandir et construire quelque chose de sain.</p>
+    <p>C'est pourquoi je te demande...</p>
+  </div>
+  <span class="bottom-heart">🩷</span><br>
+  <a class="btn-continuer" href="v2_index.html">Continuer →</a>
+</div>
+
+<script>
+// ── Cloud generator ───────────────────────────────────────────────────
+const sky = document.getElementById('sky');
+
+function makeCloud(opts) {
+  const div = document.createElement('div');
+  div.className = 'cloud';
+  div.style.top = opts.top + 'vh';
+  div.style.animationDuration = opts.duration + 's';
+  div.style.animationDelay   = opts.delay + 's';
+  div.style.opacity = opts.opacity;
+
+  // Build cloud SVG from overlapping ellipses
+  const w = opts.width, h = opts.height;
+  const color = `rgba(255,255,255,${opts.white})`;
+  div.innerHTML = `
+    <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="${w*0.5}"  cy="${h*0.65}" rx="${w*0.42}" ry="${h*0.38}" fill="${color}"/>
+      <ellipse cx="${w*0.28}" cy="${h*0.72}" rx="${w*0.22}" ry="${h*0.28}" fill="${color}"/>
+      <ellipse cx="${w*0.72}" cy="${h*0.72}" rx="${w*0.20}" ry="${h*0.25}" fill="${color}"/>
+      <ellipse cx="${w*0.38}" cy="${h*0.45}" rx="${w*0.22}" ry="${h*0.28}" fill="${color}"/>
+      <ellipse cx="${w*0.62}" cy="${h*0.42}" rx="${w*0.20}" ry="${h*0.26}" fill="${color}"/>
+    </svg>`;
+  sky.appendChild(div);
+}
+
+// Large foreground clouds
+[
+  { top:2,  width:380, height:140, duration:38, delay:0,   opacity:0.95, white:0.98 },
+  { top:6,  width:300, height:110, duration:52, delay:-15, opacity:0.90, white:0.95 },
+  { top:0,  width:260, height:100, duration:44, delay:-28, opacity:0.85, white:0.96 },
+  { top:10, width:340, height:120, duration:60, delay:-8,  opacity:0.88, white:0.94 },
+  { top:14, width:200, height:80,  duration:35, delay:-20, opacity:0.80, white:0.93 },
+].forEach(makeCloud);
+
+// Smaller background clouds (darker, slower)
+[
+  { top:18, width:220, height:85,  duration:70, delay:-35, opacity:0.55, white:0.80 },
+  { top:4,  width:180, height:70,  duration:65, delay:-50, opacity:0.50, white:0.78 },
+  { top:22, width:150, height:60,  duration:80, delay:-10, opacity:0.45, white:0.75 },
+].forEach(makeCloud);
+
+// ── Floating silver hearts ────────────────────────────────────────────
+const bg = document.getElementById('heartsBg');
+const HEARTS = ['🩶','🩷','🤍','💗','🩶','🩷'];
+for (let i=0; i<16; i++) {
+  const h = document.createElement('span');
+  h.className = 'heart-float';
+  h.textContent = HEARTS[i % HEARTS.length];
+  h.style.left = Math.random() * 100 + '%';
+  h.style.fontSize = (12 + Math.random() * 14) + 'px';
+  h.style.animationDuration = (7 + Math.random() * 10) + 's';
+  h.style.animationDelay = (Math.random() * 8) + 's';
+  bg.appendChild(h);
+}
+</script>
+<script src="_music.js"></script>
+</body>
+</html>
