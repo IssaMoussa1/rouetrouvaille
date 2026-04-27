@@ -144,7 +144,7 @@
 <div class="floaters-bg" id="floatersBg"></div>
 
 <div class="scene">
-  <h1>Tourne la roue et découvre<br>la forme de nos retrouvailles 🎡</h1>
+  <h1>Tourne la Rouetrouvaille 🎡</h1>
 
   <div class="main-row">
 
@@ -252,9 +252,9 @@ const SEGMENTS = [
   { label:'Un super pique-nique 🧺', color:'#e8597a',
     emoji:'🧺', msg:'Avec des supers sandwichs et une super fouta.' },
   { label:'Un super verre au Transistor 🍸', color:'#b84d75',
-    emoji:'🍸', msg:'Promis on paiera cette fois-ci.' },
+    emoji:'🍸', msg:'Pour voir ton super outfit d\'avocate.' },
   { label:'Un super dîner 🍽️', color:'#a8375c',
-    emoji:'🍽️', msg:'Parce que tout va mieux l\'estomac plein.' },
+    emoji:'🍽️', msg:'Pour manger de super pâtes aux girolles.' },
   { label:'Un super coucher de soleil 🌅', color:'#d4618a',
     emoji:'🌅', msg:'Sur la route des crêtes ou à Cassis.' },
   { label:'Une super surprise 🎁', color:'#c0546e',
@@ -444,6 +444,7 @@ for (let i=0;i<24;i++) {
   
   
     
+  
   <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
   <button id="mBtn" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
   <script>
@@ -451,15 +452,25 @@ for (let i=0;i<24;i++) {
     var a   = document.getElementById('m');
     var btn = document.getElementById('mBtn');
     var playing = false;
+    var saveInterval = null;
+
+    function startSaving() {
+      if (saveInterval) return;
+      saveInterval = setInterval(function(){
+        sessionStorage.setItem('mT', a.currentTime);
+      }, 100);
+    }
 
     function play() {
       if (playing) return;
       var t = parseFloat(sessionStorage.getItem('mT') || '0');
-      if (t > 0) { try { a.currentTime = t; } catch(e){} }
+      // Set time before play to minimize gap
+      a.currentTime = t > 0 ? t : 0;
       a.play().then(function(){
         playing = true;
         btn.textContent = '🔊';
-        sessionStorage.setItem('mOn','1');
+        sessionStorage.setItem('mOn', '1');
+        startSaving();
       }).catch(function(){});
     }
 
@@ -468,23 +479,26 @@ for (let i=0;i<24;i++) {
       else { a.muted = !a.muted; btn.textContent = a.muted ? '🔇' : '🔊'; }
     };
 
-    // Save position every second
-    setInterval(function(){ if(playing) sessionStorage.setItem('mT', a.currentTime); }, 1000);
+    // Save position immediately on unload
+    window.addEventListener('pagehide', function(){
+      sessionStorage.setItem('mT', a.currentTime);
+    });
 
-    // Auto-start if already unlocked from a previous page
+    // Auto-resume if already playing
     if (sessionStorage.getItem('mOn') === '1') {
-      // Small delay to let audio element initialize
-      setTimeout(play, 100);
+      play();
     }
 
-    // Also start on any user interaction (mouse or touch)
+    // Also start on first user interaction
     function startOnInteract() {
       play();
       document.removeEventListener('mousemove',  startOnInteract);
       document.removeEventListener('touchstart', startOnInteract);
+      document.removeEventListener('click',      startOnInteract);
     }
     document.addEventListener('mousemove',  startOnInteract, {once:true, passive:true});
     document.addEventListener('touchstart', startOnInteract, {once:true, passive:true});
+    document.addEventListener('click',      startOnInteract, {once:true, passive:true});
   })();
   </script>
 </body>
