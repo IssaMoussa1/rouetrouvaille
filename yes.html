@@ -118,6 +118,24 @@ var bg = document.getElementById('heartsBg');
   }
 });
 </script>
-<script src="_music.js"></script>
+
+  <button id="musicBtn" onclick="toggleMusic()" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);touch-action:manipulation;">🔇</button>
+  <audio id="bgMusic" src="glue-song.mp3" loop></audio>
+  <script>
+    var _playing = false;
+    function toggleMusic() {
+      var a = document.getElementById("bgMusic");
+      var b = document.getElementById("musicBtn");
+      if (!_playing) {
+        a.play();
+        _playing = true;
+        b.textContent = "🔊";
+      } else {
+        a.pause();
+        _playing = false;
+        b.textContent = "🔇";
+      }
+    }
+  </script>
 </body>
 </html>

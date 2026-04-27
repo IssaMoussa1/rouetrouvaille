@@ -144,7 +144,7 @@
 <div class="floaters-bg" id="floatersBg"></div>
 
 <div class="scene">
-  <h1>Tourne la Rouetrouvaille 🎡</h1>
+  <h1>Tourne la roue et découvre<br>la forme de nos retrouvailles 🎡</h1>
 
   <div class="main-row">
 
@@ -250,15 +250,15 @@
 <script>
 const SEGMENTS = [
   { label:'Un super pique-nique 🧺', color:'#e8597a',
-    emoji:'🧺', msg:'Avec des supers sandwichs et une super fouta.' },
+    emoji:'🧺', msg:'Un pique-nique rien que pour nous deux, au soleil, avec tout ce qu\'il faut pour être heureux.' },
   { label:'Un super verre au Transistor 🍸', color:'#b84d75',
-    emoji:'🍸', msg:'Promis on paiera cette fois-ci.' },
+    emoji:'🍸', msg:'Un verre au Transistor, comme avant — ta playlist, tes sourires, et moi qui ne te quitte pas des yeux.' },
   { label:'Un super dîner 🍽️', color:'#a8375c',
-    emoji:'🍽️', msg:'Parce que tout va mieux l\'estomac plein.' },
+    emoji:'🍽️', msg:'Un dîner pour deux, bougies comprises — parce que tu mérites tous les instants qui font briller les yeux.' },
   { label:'Un super coucher de soleil 🌅', color:'#d4618a',
-    emoji:'🌅', msg:'Sur la route des crêtes ou à Cassis.' },
+    emoji:'🌅', msg:'Un coucher de soleil ensemble, quelque part de beau, à regarder le ciel changer de couleur.' },
   { label:'Une super surprise 🎁', color:'#c0546e',
-    emoji:'🎁', msg:'Celle-là, c\'est secret. Fais-moi confiance.' },
+    emoji:'🎁', msg:'Celle-là, c\'est secret. Fais-moi confiance — tu vas adorer.' },
 ];
 
 const TWO_PI = Math.PI * 2;
@@ -426,6 +426,24 @@ for (let i=0;i<24;i++) {
   bg.appendChild(f);
 }
 </script>
-<script src="_music.js"></script>
+
+  <button id="musicBtn" onclick="toggleMusic()" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);touch-action:manipulation;">🔇</button>
+  <audio id="bgMusic" src="glue-song.mp3" loop></audio>
+  <script>
+    var _playing = false;
+    function toggleMusic() {
+      var a = document.getElementById("bgMusic");
+      var b = document.getElementById("musicBtn");
+      if (!_playing) {
+        a.play();
+        _playing = true;
+        b.textContent = "🔊";
+      } else {
+        a.pause();
+        _playing = false;
+        b.textContent = "🔇";
+      }
+    }
+  </script>
 </body>
 </html>
