@@ -356,5 +356,22 @@ var bg=document.getElementById('heartsBg');
 });
 </script>
 
+  <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
+  <button onclick="var a=document.getElementById('m');if(a.paused){a.play();this.textContent='🔊';}else{a.pause();this.textContent='🔇';}" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
+  <script>
+    (function(){
+      var a = document.getElementById('m');
+      var btn = document.querySelector('[onclick*="paused"]');
+      if (sessionStorage.getItem('musicStarted') === '1') {
+        var t = parseFloat(sessionStorage.getItem('musicTime') || '0');
+        if (t > 0) a.currentTime = t;
+        a.play().then(function(){ if(btn) btn.textContent='🔊'; }).catch(function(){
+          document.addEventListener('click', function go(){ a.play(); if(btn) btn.textContent='🔊'; document.removeEventListener('click',go); },{once:true,passive:true});
+        });
+      }
+      window.addEventListener('pagehide',     function(){ sessionStorage.setItem('musicTime', a.currentTime); });
+      window.addEventListener('beforeunload', function(){ sessionStorage.setItem('musicTime', a.currentTime); });
+    })();
+  </script>
 </body>
 </html>
