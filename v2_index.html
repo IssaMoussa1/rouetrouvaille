@@ -3,69 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Une question... 🩷</title>
+<title>Pour toi 🩶</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lora:ital,wght@0,400;1,400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
-  html,body { height:100%; }
+  html,body { height:100%; overflow:hidden; }
 
   body {
     min-height:100vh;
-    font-family:'Fredoka One',cursive;
+    background:linear-gradient(180deg,#d0d0d8 0%,#e2e2e8 50%,#ebebf0 100%);
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
+    font-family:'Fredoka One',cursive;
     position:relative;
-    /* Background transitions from grey to warm sky */
-    background: linear-gradient(180deg, #c8c8d4 0%, #d8d8e2 50%, #e8e8f0 100%);
-    transition: background 1.2s ease;
   }
 
-  /* ── Sky / clouds ── */
-  .sky {
-    position:fixed; top:0; left:0;
-    width:100%; height:100%;
-    pointer-events:none; z-index:0;
-    overflow:hidden;
-  }
-
-  .cloud {
-    position:absolute;
-    transition: opacity 1.4s ease, transform 1.4s ease;
-    animation: drift linear infinite;
-    will-change: transform, opacity;
-  }
-  @keyframes drift {
-    from { transform: translateX(var(--drift-start, 110vw)); }
-    to   { transform: translateX(var(--drift-end, -60vw)); }
-  }
-
-  /* Sun — hidden initially, reveals progressively */
-  .sun {
-    position:fixed;
-    top:-120px; right:8%;
-    left:auto;
-    transform:none;
-    width:200px; height:200px;
-    z-index:1;
-    transition: top 1.5s cubic-bezier(0.34,1.1,0.64,1), opacity 1.2s ease;
-    opacity:0;
-    pointer-events:none;
-  }
-  .sun-circle {
-    width:140px; height:140px;
-    background:radial-gradient(circle, #FFE566 0%, #FFD700 60%, #FFA500 100%);
-    border-radius:50%;
-    margin:30px auto 0;
-    box-shadow: 0 0 40px rgba(255,210,0,0.5), 0 0 80px rgba(255,180,0,0.25);
-    animation: sunPulse 3s ease-in-out infinite;
-  }
-  @keyframes sunPulse {
-    0%,100% { box-shadow:0 0 40px rgba(255,210,0,0.5),0 0 80px rgba(255,180,0,0.25); }
-    50%      { box-shadow:0 0 60px rgba(255,210,0,0.7),0 0 120px rgba(255,180,0,0.35); }
-  }
-
-  /* ── Floaters ── */
-  .hearts-bg { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+  /* Floating hearts bg */
+  .hearts-bg { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
   .heart-float { position:absolute; opacity:0; animation:floatUp linear infinite; }
   @keyframes floatUp {
     0%   { transform:translateY(100vh) scale(0.5); opacity:0; }
@@ -73,336 +27,270 @@
     100% { transform:translateY(-10vh) scale(1.2); opacity:0; }
   }
 
-  /* ── Main content ── */
-  .main { position:relative; z-index:2; text-align:center; padding:24px 20px; width:100%; max-width:520px; }
-
-  h1 {
-    font-family:'Fredoka One',cursive; font-weight:400;
-    font-size:clamp(20px,5vw,28px); color:#c8385a;
-    margin-bottom:28px; line-height:1.4;
-    transition: color 1s ease;
+  /* ── ENVELOPE SCENE ── */
+  .envelope-scene {
+    position:relative; z-index:2;
+    display:flex; flex-direction:column;
+    align-items:center; gap:24px;
+    cursor:pointer;
   }
 
-  .cat-container { width:200px; height:200px; margin:0 auto 32px; display:flex; align-items:center; justify-content:center; }
-  #catImg { width:200px; height:200px; object-fit:contain; mix-blend-mode:multiply; display:block; transition:opacity 0.3s ease; }
-
-  .buttons-wrapper { display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:nowrap; }
-
-  #btnOui {
-    background:#4caf50; color:white;
-    font-family:'Fredoka One',cursive; font-weight:400;
-    border:none; border-radius:18px; cursor:pointer;
-    font-size:26px; padding:18px 52px;
-    box-shadow:0 6px 20px rgba(76,175,80,0.35);
-    transition:font-size 0.4s ease, padding 0.4s ease, border-radius 0.4s ease;
-    white-space:nowrap; flex-shrink:0;
-    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  .hint {
+    font-family:'Lora',serif; font-style:italic;
+    font-size:16px; color:rgba(100,80,100,0.85);
+    letter-spacing:0.5px;
+    animation:hintPulse 2s ease-in-out infinite;
+    text-shadow:0 1px 4px rgba(160,40,60,0.2);
   }
-  #btnNon {
-    background:#e53935; color:white;
-    font-family:'Fredoka One',cursive; font-weight:400;
-    border:none; border-radius:50px; cursor:pointer;
-    font-size:18px; padding:14px 28px;
-    box-shadow:0 4px 14px rgba(229,57,53,0.3);
-    white-space:nowrap; flex-shrink:0;
-    touch-action:manipulation; -webkit-tap-highlight-color:transparent; min-width:80px;
+  @keyframes hintPulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+  /* Envelope wrapper — perspective for 3D */
+  .env-wrap {
+    perspective:900px;
+    width:320px; height:220px;
+    position:relative;
   }
-  #btnNon.fleeing {
-    position:fixed; z-index:100;
-    transition:left 0.5s cubic-bezier(0.34,1.2,0.64,1), top 0.5s cubic-bezier(0.34,1.2,0.64,1);
+
+  /* The envelope body */
+  .envelope {
+    width:320px; height:220px;
+    position:relative;
+    transform-style:preserve-3d;
+  }
+
+  /* Back of envelope */
+  .env-back {
+    position:absolute; inset:0;
+    background:linear-gradient(145deg,#f5f0e8 0%,#ede8dc 100%);
+    border-radius:4px 4px 8px 8px;
+    box-shadow:0 20px 60px rgba(160,80,80,0.22), 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  /* Left & right inner triangles (V shape inside) */
+  .env-back::before {
+    content:'';
+    position:absolute;
+    bottom:0; left:0; right:0; top:0;
+    background:
+      linear-gradient(to bottom-right, transparent 49.5%, #e2dcd0 50%) left / 50% 100% no-repeat,
+      linear-gradient(to bottom-left,  transparent 49.5%, #e2dcd0 50%) right / 50% 100% no-repeat;
+    border-radius:4px 4px 8px 8px;
+  }
+
+  /* Bottom flap — V shape */
+  .env-bottom {
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:110px;
+    clip-path:polygon(0 100%, 50% 0, 100% 100%);
+    background:linear-gradient(to bottom, #ede5d5, #e0d8c8);
+    border-radius:0 0 8px 8px;
+    z-index:2;
+  }
+
+  /* Top flap — opens via animation */
+  .env-flap {
+    position:absolute;
+    top:0; left:0; right:0;
+    height:160px;
+    clip-path:polygon(0 0, 50% 100%, 100% 0);
+    background:linear-gradient(to bottom, #f0ebe0, #e8e0d0);
+    transform-origin:top center;
+    transform:rotateX(0deg);
+    transition:transform 0.9s cubic-bezier(0.4,0,0.2,1);
+    z-index:10;
+    border-radius:4px 4px 0 0;
+  }
+  .env-flap.open {
+    transform:rotateX(-180deg);
+  }
+
+  /* Wax seal */
+  .seal {
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:54px; height:54px;
+    background:radial-gradient(circle at 38% 38%, #e03030, #a01010);
+    border-radius:50%;
+    z-index:11;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+    box-shadow:0 3px 12px rgba(140,0,0,0.4), inset 0 1px 3px rgba(255,100,100,0.3);
+    transition:opacity 0.4s ease, transform 0.4s ease;
+  }
+  .seal.hidden { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
+
+  /* ── LETTER ── */
+  .letter {
+    position:fixed;
+    top:50%; left:50%;
+    transform:translate(-50%, 120%);
+    z-index:20;
+    width:88%; max-width:460px;
+    background:rgba(255,252,248,0.97);
+    border-radius:20px;
+    padding:40px 36px 36px;
+    box-shadow:0 24px 60px rgba(160,60,80,0.2), 0 4px 20px rgba(0,0,0,0.08);
+    text-align:center;
+    transition:transform 1.1s cubic-bezier(0.34,1.15,0.64,1), opacity 0.8s ease;
+    opacity:0;
+    pointer-events:none;
+  }
+  .letter.visible {
+    transform:translate(-50%,-50%);
+    opacity:1;
+    pointer-events:all;
+  }
+
+  .letter-hearts { font-size:26px; margin-bottom:16px; }
+
+  .letter h2 {
+    font-family:'Fredoka One',cursive;
+    color:#c8385a; font-size:26px; font-weight:400;
+    margin-bottom:22px;
+  }
+
+  .letter-text {
+    font-family:'Lora',serif; font-size:15px;
+    color:#6b4050; line-height:1.95;
+    text-align:center;
+  }
+  .letter-text p { margin-bottom:13px; }
+  .letter-text p:last-child { margin-bottom:0; }
+
+  .letter-bottom { font-size:20px; margin:18px 0; }
+
+  .btn-continuer {
+    display:inline-block; margin-top:20px;
+    padding:13px 38px;
+    background:linear-gradient(135deg,#e8597a,#c8385a);
+    color:white; font-family:'Fredoka One',cursive;
+    font-size:16px; border:none; border-radius:50px;
+    cursor:pointer; text-decoration:none;
+    box-shadow:0 6px 20px rgba(200,56,90,0.35);
+    transition:transform 0.2s, box-shadow 0.2s;
     touch-action:manipulation;
+    opacity:0;
+    transform:translateY(10px);
+    animation:none;
   }
-  .toast { margin-top:20px; font-family:'Lora',serif; font-style:italic; color:#b03060; font-size:15px; min-height:24px; opacity:0; transition:opacity 0.4s ease; }
-  .toast.show { opacity:1; }
+  .btn-continuer.show {
+    animation:btnAppear 0.5s ease 0.6s both;
+  }
+  @keyframes btnAppear {
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  /* Music button */
+  #musicBtn {
+    position:fixed; bottom:16px; right:16px;
+    width:44px; height:44px; border-radius:50%;
+    border:none; background:rgba(255,255,255,0.85);
+    font-size:20px; cursor:pointer; z-index:99999;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    touch-action:manipulation; display:none;
+  }
 </style>
 </head>
 <body>
 
-<div class="sky" id="sky"></div>
-<div class="sun" id="sun">
-  <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
-       style="animation:rotateSlow 20s linear infinite; display:block;">
-    <defs>
-      <radialGradient id="sunGradIdx" cx="50%" cy="50%" r="50%">
-        <stop offset="0%"   stop-color="#fff9aa"/>
-        <stop offset="40%"  stop-color="#FFE566"/>
-        <stop offset="75%"  stop-color="#FFD700"/>
-        <stop offset="100%" stop-color="#FFA500"/>
-      </radialGradient>
-      <filter id="glowIdx" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="8" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-    <!-- Rays centered at 100,100 -->
-    <g transform="translate(100,100)">
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(0)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(30)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(60)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(90)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(120)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(150)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(180)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(210)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(240)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(270)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(300)"/>
-      <rect x="-2" y="-98" width="4" height="38" rx="2" fill="rgba(255,220,0,0.6)" transform="rotate(330)"/>
-    </g>
-    <!-- Circle centered at 100,100 -->
-    <circle cx="100" cy="100" r="56" fill="url(#sunGradIdx)" filter="url(#glowIdx)"/>
-  </svg>
-</div>
 <div class="hearts-bg" id="heartsBg"></div>
 
-<div class="main">
-  <h1>Veux-tu être à nouveau mon amoureuse ? 🩷</h1>
-  <div class="cat-container">
-    <img id="catImg" alt="" src="https://media.tenor.com/_xQ3HRStAYQAAAAj/peach-goma.gif">
+<!-- Envelope -->
+<button class="envelope-scene" id="envScene" onclick="openEnvelope()" style="background:none;border:none;padding:0;cursor:pointer;">
+  <div class="env-wrap">
+    <div class="envelope" id="envelope">
+      <div class="env-back"></div>
+      <div class="env-bottom"></div>
+      <div class="env-flap" id="envFlap"></div>
+      <div class="seal" id="seal">🩷</div>
+    </div>
   </div>
-  <div class="buttons-wrapper">
-    <button id="btnOui" onclick="clickOui()">Oui</button>
-    <button id="btnNon" onclick="clickNon()">Non</button>
+  <div class="hint">Clique pour ouvrir 🩷</div>
+</button>
+
+<!-- Letter (hidden initially) -->
+<div class="letter" id="letter">
+  <div class="letter-hearts">🩷 🩷 🩷</div>
+  <h2>Sirine</h2>
+  <div class="letter-text">
+    <p>Je préfère passer chaque jour sans toi avec l'espoir de te retrouver plutôt qu'un seul jour avec la certitude de t'avoir perdue pour toujours.</p>
+    <p>Je brûle d'amour pour toi. D'un amour du cœur mais aussi d'un amour qui veut ton bien, qui veut te voir heureuse, grandir et construire quelque chose de sain.</p>
+    <p>C'est pourquoi je te demande...</p>
   </div>
-  <div class="toast" id="toast"></div>
+  <div class="letter-bottom">🩷</div>
+  <a class="btn-continuer" id="btnContinuer" href="v2_question.html">Continuer →</a>
 </div>
 
+<!-- Music -->
+<audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
+<button id="musicBtn" onclick="toggleMute()">🔊</button>
+
 <script>
-// ── GIFs ──────────────────────────────────────────────────────────────
-const GIFS = [
-  'https://media.tenor.com/_xQ3HRStAYQAAAAj/peach-goma.gif',
-  'https://media.tenor.com/g7d2LDaf27EAAAAj/love-you.gif',
-  'https://media.tenor.com/pwzFZHnFRF4AAAAj/tkthao219-tooji.gif',
-  'https://media.tenor.com/tXJsHJmrkIcAAAAj/bubu-dudu.gif',
-  'https://media.tenor.com/QohdHKK7bVsAAAAj/peach-goma.gif',
-  'https://media.tenor.com/mfE9Qgm0QZoAAAAj/peach-goma.gif',
-];
+  var opened = false;
 
-function showCat(idx) {
-  const img = document.getElementById('catImg');
-  img.style.opacity = '0';
-  setTimeout(function() {
-    img.src = GIFS[Math.min(idx, GIFS.length - 1)];
-    img.style.opacity = '1';
-  }, 200);
-}
+  function openEnvelope() {
+    if (opened) return;
+    opened = true;
 
-// ── Clouds ────────────────────────────────────────────────────────────
-const sky = document.getElementById('sky');
-const cloudDefs = [
-  { top:1,  w:380, h:140, dur:38, delay:0,    op:0.96, white:0.98 },
-  { top:5,  w:300, h:110, dur:52, delay:-14,  op:0.92, white:0.95 },
-  { top:0,  w:260, h:100, dur:45, delay:-28,  op:0.88, white:0.96 },
-  { top:9,  w:340, h:125, dur:60, delay:-7,   op:0.90, white:0.94 },
-  { top:13, w:200, h:80,  dur:36, delay:-20,  op:0.82, white:0.93 },
-  // extra clouds user asked for
-  { top:3,  w:280, h:105, dur:48, delay:-32,  op:0.85, white:0.94 },
-  { top:17, w:240, h:90,  dur:55, delay:-42,  op:0.78, white:0.91 },
-  { top:20, w:320, h:115, dur:65, delay:-18,  op:0.72, white:0.90 },
-  // bg clouds
-  { top:22, w:180, h:70,  dur:75, delay:-38,  op:0.50, white:0.78 },
-  { top:7,  w:160, h:65,  dur:68, delay:-55,  op:0.48, white:0.76 },
-];
+    // Start music
+    var audio = document.getElementById('m');
+    sessionStorage.setItem('musicStarted','1');
+    audio.play().catch(function(){});
+    document.getElementById('musicBtn').style.display = 'block';
 
-const cloudEls = [];
-cloudDefs.forEach(function(cfg, i) {
-  const div = document.createElement('div');
-  div.className = 'cloud';
-  div.style.top = cfg.top + 'vh';
-  div.style.animationDuration  = cfg.dur + 's';
-  div.style.animationDelay = cfg.delay + 's';
-  div.style.opacity = cfg.op;
-  const col = `rgba(255,255,255,${cfg.white})`;
-  const w = cfg.w, h = cfg.h;
-  div.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="${w*.5}"  cy="${h*.65}" rx="${w*.42}" ry="${h*.38}" fill="${col}"/>
-    <ellipse cx="${w*.28}" cy="${h*.72}" rx="${w*.22}" ry="${h*.28}" fill="${col}"/>
-    <ellipse cx="${w*.72}" cy="${h*.72}" rx="${w*.20}" ry="${h*.25}" fill="${col}"/>
-    <ellipse cx="${w*.38}" cy="${h*.45}" rx="${w*.22}" ry="${h*.28}" fill="${col}"/>
-    <ellipse cx="${w*.62}" cy="${h*.42}" rx="${w*.20}" ry="${h*.26}" fill="${col}"/>
-  </svg>`;
-  sky.appendChild(div);
-  cloudEls.push({ el:div, baseOp:cfg.op });
-});
+    // 1. Hide hint
+    document.querySelector('.hint').style.opacity = '0';
+    document.querySelector('.hint').style.transition = 'opacity 0.3s';
 
-// ── Sky backgrounds per stage ─────────────────────────────────────────
-const skyStages = [
-  'linear-gradient(180deg,#c8c8d4 0%,#d8d8e2 50%,#e8e8f0 100%)', // 0 — grey
-  'linear-gradient(180deg,#bfc8d8 0%,#d0d8e4 50%,#e4eaf2 100%)', // 1 — grey-blue
-  'linear-gradient(180deg,#b8c4d4 0%,#cdd8e2 50%,#e0e8f0 100%)', // 2 — blue hint
-  'linear-gradient(180deg,#b0c0d0 0%,#c8d4e0 45%,#e0e8d8 100%)', // 3 — blue+warm
-  'linear-gradient(180deg,#b0bcc8 0%,#c8d0cc 40%,#dde4c8 100%)', // 4 — clearing
-  'linear-gradient(180deg,#a8b8c4 0%,#c4cebc 35%,#d8e0b8 100%)', // 5 — bright
-];
+    // 2. Open flap
+    document.getElementById('envFlap').classList.add('open');
 
-// ── State ─────────────────────────────────────────────────────────────
-var nonCount    = 0;
-var isFleeing   = false;
-var ouiUnlocked = false;
-var lastFlee    = 0;
+    // 3. Hide seal after flap starts opening
+    setTimeout(function() {
+      document.getElementById('seal').classList.add('hidden');
+    }, 200);
 
-var nonTexts = [
-  'Non',
-  "T'es sûre ? 🤔",
-  'Sirine... 😥',
-  'Vraiment ? 😢',
-  "S'il te plaît… 🙏",
-  '😭 😭 😭'
-];
+    // 4. Letter slides up after flap is open
+    setTimeout(function() {
+      document.getElementById('letter').classList.add('visible');
+    }, 700);
 
-function updateSky(step) {
-  // Transition background
-  const stage = Math.min(step, skyStages.length - 1);
-  document.body.style.background = skyStages[stage];
+    // 5. Fade out envelope
+    setTimeout(function() {
+      var env = document.getElementById('envScene');
+      env.style.transition = 'opacity 0.6s ease';
+      env.style.opacity = '0';
+      env.style.pointerEvents = 'none';
+    }, 900);
 
-  // Clouds: progressively fade out (roughly 2 clouds per click)
-  const totalClouds = cloudEls.length;
-  // How many to hide = step * 2, from the front (foreground) clouds first
-  const toHide = Math.min(step * 2, totalClouds);
-  cloudEls.forEach(function(c, i) {
-    if (i < toHide) {
-      c.el.style.opacity = '0';
-      c.el.style.transform = 'translateY(-40px) ' + c.el.style.transform;
-    } else {
-      c.el.style.opacity = c.baseOp;
+    // 6. Show button
+    setTimeout(function() {
+      document.getElementById('btnContinuer').classList.add('show');
+    }, 1200);
+  }
+
+  function toggleMute() {
+    var a = document.getElementById('m');
+    var b = document.getElementById('musicBtn');
+    a.muted = !a.muted;
+    b.textContent = a.muted ? '🔇' : '🔊';
+  }
+
+  // Floating hearts
+  var bg = document.getElementById('heartsBg');
+  ['🩷','❤️','💕','💗','💓'].forEach(function(e) {
+    for (var j=0; j<4; j++) {
+      var h = document.createElement('span');
+      h.className = 'heart-float'; h.textContent = e;
+      h.style.left = Math.random()*100+'%';
+      h.style.fontSize = (12+Math.random()*14)+'px';
+      h.style.animationDuration = (7+Math.random()*10)+'s';
+      h.style.animationDelay = (Math.random()*8)+'s';
+      bg.appendChild(h);
     }
   });
-
-  // Sun appears progressively
-  const sun = document.getElementById('sun');
-  if (step >= 2) {
-    // Sun peeks in from top
-    const peekPercent = Math.min((step - 2) / 3, 1); // 0 at step 2, 1 at step 5
-    const topPx = -120 + peekPercent * 100; // from -120px to -20px
-    sun.style.top    = topPx + 'px';
-    sun.style.opacity = 0.3 + peekPercent * 0.7;
-    sun.style.right = '8%';
-  }
-}
-
-function clickOui() {
-  if (!ouiUnlocked) {
-    showToast('Clique quand même sur non pour voir 🫣');
-    return;
-  }
-  window.location.href = 'v2_yes.html';
-}
-
-function clickNon() {
-  nonCount++;
-
-  // Oui grows
-  var btnOui = document.getElementById('btnOui');
-  btnOui.style.fontSize    = Math.min(26*Math.pow(1.45,nonCount),90)+'px';
-  btnOui.style.padding     = Math.min(18*Math.pow(1.3,nonCount),70)+'px '+Math.min(52*Math.pow(1.3,nonCount),160)+'px';
-  btnOui.style.borderRadius = Math.min(18+nonCount*4,40)+'px';
-
-  // Non shrinks
-  var btnNon = document.getElementById('btnNon');
-  if (!isFleeing) btnNon.style.transform = 'scale('+Math.max(0.5,1-nonCount*0.09)+')';
-  btnNon.style.opacity = Math.max(0.5,1-nonCount*0.07);
-  btnNon.textContent = nonTexts[Math.min(nonCount, nonTexts.length-1)];
-
-  // GIF
-  showCat(nonCount);
-
-  // Sky progression
-  updateSky(nonCount);
-
-  // Flee at 5
-  if (nonCount >= 5 && !isFleeing) activateFlee();
-
-  showToast('');
-}
-
-function activateFlee() {
-  isFleeing = true; ouiUnlocked = true;
-  var btn  = document.getElementById('btnNon');
-  var rect = btn.getBoundingClientRect();
-  btn.style.transition = 'none';
-  btn.style.transform  = 'none';
-  btn.classList.add('fleeing');
-  btn.style.left = rect.left+'px';
-  btn.style.top  = rect.top+'px';
-  requestAnimationFrame(function() { btn.style.transition = ''; });
-  document.addEventListener('mousemove', function(e) { flee(e.clientX,e.clientY); });
-  document.addEventListener('touchmove', function(e) { if(e.touches[0]) flee(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
-}
-
-function flee(cx,cy) {
-  var now=Date.now(); if(now-lastFlee<250) return;
-  var btn=document.getElementById('btnNon'),r=btn.getBoundingClientRect();
-  if(Math.hypot(cx-(r.left+r.width/2),cy-(r.top+r.height/2))<140){
-    lastFlee=now;
-    var m=20,bw=btn.offsetWidth,bh=btn.offsetHeight;
-    btn.style.left=(m+Math.random()*(window.innerWidth-bw-m*2))+'px';
-    btn.style.top=(m+Math.random()*(window.innerHeight-bh-m*2))+'px';
-  }
-}
-
-function showToast(msg) {
-  var t=document.getElementById('toast'); t.textContent=msg; t.classList.toggle('show',!!msg);
-}
-
-// Floating hearts
-var bg=document.getElementById('heartsBg');
-['🩶','🩷','🤍','💗','🩶','🩷'].forEach(function(e){
-  for(var j=0;j<3;j++){
-    var h=document.createElement('span'); h.className='heart-float'; h.textContent=e;
-    h.style.left=Math.random()*100+'%'; h.style.fontSize=(12+Math.random()*14)+'px';
-    h.style.animationDuration=(7+Math.random()*10)+'s'; h.style.animationDelay=(Math.random()*8)+'s';
-    bg.appendChild(h);
-  }
-});
 </script>
-
-
-
-  
-  
-  
-    <script>
-    (function(){
-      var a = document.getElementById('m');
-      // Start on first interaction anywhere
-      function start(e) {
-        a.play().then(function(){
-          var btn = document.querySelector('[onclick*="paused"]');
-          if(btn) btn.textContent = '🔊';
-        }).catch(function(){});
-        document.removeEventListener('click',     start);
-        document.removeEventListener('touchstart',start);
-        document.removeEventListener('keydown',   start);
-      }
-      document.addEventListener('click',      start, {once:true, passive:true});
-      document.addEventListener('touchstart', start, {once:true, passive:true});
-      document.addEventListener('keydown',    start, {once:true, passive:true});
-    })();
-  </script>
-  <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
-  <button onclick="var a=document.getElementById('m');if(a.paused){a.play();sessionStorage.setItem('musicStarted','1');this.textContent='🔊';}else{a.pause();this.textContent='🔇';}" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
-  <script>
-    (function(){
-      var a = document.getElementById('m');
-      var btn = document.querySelector('[onclick*="paused"]');
-      // If user already interacted on a previous page, autoplay immediately
-      if (sessionStorage.getItem('musicStarted') === '1') {
-        var t = parseFloat(sessionStorage.getItem('musicTime') || '0');
-        if (t > 0) a.currentTime = t;
-        a.play().then(function(){
-          if(btn) btn.textContent = '🔊';
-        }).catch(function(){
-          // Still blocked — start on next click
-          document.addEventListener('click', function go(){
-            a.play(); if(btn) btn.textContent='🔊';
-            document.removeEventListener('click', go);
-          }, {once:true, passive:true});
-        });
-      }
-      // Save position when leaving
-      window.addEventListener('pagehide',     function(){ sessionStorage.setItem('musicTime', a.currentTime); });
-      window.addEventListener('beforeunload', function(){ sessionStorage.setItem('musicTime', a.currentTime); });
-    })();
-  </script>
 </body>
 </html>

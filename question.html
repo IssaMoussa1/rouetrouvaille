@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Une question... 🩷</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lora:ital,wght@0,400;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body {
+    min-height:100vh;
+    background:linear-gradient(135deg,#ffd6e0 0%,#ffb3c6 40%,#ff85a1 100%);
+    font-family:'Fredoka One',cursive;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    position:relative;
+  }
+  .hearts-bg { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+  .heart-float { position:absolute; opacity:0; animation:floatUp linear infinite; }
+  @keyframes floatUp {
+    0%   { transform:translateY(100vh) scale(0.5); opacity:0; }
+    10%  { opacity:0.5; } 90% { opacity:0.2; }
+    100% { transform:translateY(-10vh) scale(1.2); opacity:0; }
+  }
+  .main { position:relative; z-index:1; text-align:center; padding:24px 20px; width:100%; max-width:520px; }
+  h1 { font-family:'Fredoka One',cursive; font-weight:400; font-size:clamp(20px,5vw,28px); color:#c8385a; margin-bottom:28px; line-height:1.4; }
+
+  /* GIF — no parent background, no isolation, blend directly with page */
+  .cat-container {
+    width:200px; height:200px;
+    margin:0 auto 32px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #catImg {
+    width:200px; height:200px;
+    object-fit:contain;
+    mix-blend-mode:multiply;
+    display:block;
+    transition:opacity 0.3s ease;
+  }
+
+  .buttons-wrapper {
+    display:flex; align-items:center; justify-content:center;
+    gap:20px; flex-wrap:nowrap;
+  }
+  #btnOui {
+    background:#4caf50; color:white;
+    font-family:'Fredoka One',cursive; font-weight:400;
+    border:none; border-radius:18px; cursor:pointer;
+    font-size:26px; padding:18px 52px;
+    box-shadow:0 6px 20px rgba(76,175,80,0.35);
+    transition:font-size 0.4s ease, padding 0.4s ease, border-radius 0.4s ease;
+    white-space:nowrap; flex-shrink:0;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+  #btnNon {
+    background:#e53935; color:white;
+    font-family:'Fredoka One',cursive; font-weight:400;
+    border:none; border-radius:50px; cursor:pointer;
+    font-size:18px; padding:14px 28px;
+    box-shadow:0 4px 14px rgba(229,57,53,0.3);
+    white-space:nowrap; flex-shrink:0;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+    min-width:80px;
+  }
+  #btnNon.fleeing {
+    position:fixed; z-index:100;
+    transition:left 0.5s cubic-bezier(0.34,1.2,0.64,1),
+                top  0.5s cubic-bezier(0.34,1.2,0.64,1);
+    touch-action:manipulation;
+  }
+  .toast {
+    margin-top:20px; font-family:'Lora',serif; font-style:italic;
+    color:#b03060; font-size:15px; min-height:24px;
+    opacity:0; transition:opacity 0.4s ease;
+  }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<div class="hearts-bg" id="heartsBg"></div>
+<div class="main">
+  <h1>Veux-tu être à nouveau mon amoureuse ? 🩷</h1>
+  <div class="cat-container">
+    <img id="catImg" alt="" src="https://media.tenor.com/_xQ3HRStAYQAAAAj/peach-goma.gif">
+  </div>
+  <div class="buttons-wrapper">
+    <button id="btnOui" onclick="clickOui()">Oui</button>
+    <button id="btnNon" onclick="clickNon()">Non</button>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ── Direct GIF URLs (hardcoded — no API, no CORS) ─────────────────────
+const GIFS = [
+  'https://media.tenor.com/_xQ3HRStAYQAAAAj/peach-goma.gif',      // 0 — initial
+  'https://media.tenor.com/g7d2LDaf27EAAAAj/love-you.gif',         // 1 — clic 1
+  'https://media.tenor.com/pwzFZHnFRF4AAAAj/tkthao219-tooji.gif', // 2 — clic 2
+  'https://media.tenor.com/tXJsHJmrkIcAAAAj/bubu-dudu.gif',       // 3 — clic 3
+  'https://media.tenor.com/QohdHKK7bVsAAAAj/peach-goma.gif',      // 4 — clic 4
+  'https://media.tenor.com/mfE9Qgm0QZoAAAAj/peach-goma.gif',      // 5 — clic 5
+];
+
+function showCat(idx) {
+  const img = document.getElementById('catImg');
+  img.style.opacity = '0';
+  setTimeout(function() {
+    img.src = GIFS[Math.min(idx, GIFS.length - 1)];
+    img.style.opacity = '1';
+  }, 200);
+}
+
+// ── State ─────────────────────────────────────────────────────────────
+var nonCount    = 0;
+var isFleeing   = false;
+var ouiUnlocked = false;
+var lastFlee    = 0;
+
+var nonTexts = [
+  'Non',
+  "T'es sûre ? 🤔",
+  'Sirine... 😥',
+  'Vraiment ? 😢',
+  "S'il te plaît… 🙏",
+  '😭 😭 😭'
+];
+
+function clickOui() {
+  if (!ouiUnlocked) {
+    showToast('Clique quand même sur non pour voir 🫣');
+    return;
+  }
+  window.location.href = 'yes.html';
+}
+
+function clickNon() {
+  nonCount++;
+
+  // Oui grows
+  var btnOui = document.getElementById('btnOui');
+  btnOui.style.fontSize    = Math.min(26 * Math.pow(1.45, nonCount), 90) + 'px';
+  btnOui.style.padding     = Math.min(18 * Math.pow(1.3, nonCount), 70) + 'px '
+                           + Math.min(52 * Math.pow(1.3, nonCount), 160) + 'px';
+  btnOui.style.borderRadius = Math.min(18 + nonCount * 4, 40) + 'px';
+
+  // Non shrinks before flee
+  var btnNon = document.getElementById('btnNon');
+  if (!isFleeing) {
+    btnNon.style.transform = 'scale(' + Math.max(0.5, 1 - nonCount * 0.09) + ')';
+  }
+  btnNon.style.opacity = Math.max(0.5, 1 - nonCount * 0.07);
+  btnNon.textContent = nonTexts[Math.min(nonCount, nonTexts.length - 1)];
+
+  // GIF changes
+  showCat(nonCount);
+
+  // Start flee at 5th click
+  if (nonCount >= 5 && !isFleeing) activateFlee();
+
+  showToast('');
+}
+
+function activateFlee() {
+  isFleeing   = true;
+  ouiUnlocked = true;
+
+  var btn  = document.getElementById('btnNon');
+  var rect = btn.getBoundingClientRect();
+
+  // Disable transition → snap to current position → re-enable
+  btn.style.transition = 'none';
+  btn.style.transform  = 'none';
+  btn.classList.add('fleeing');
+  btn.style.left = rect.left + 'px';
+  btn.style.top  = rect.top  + 'px';
+
+  requestAnimationFrame(function() {
+    btn.style.transition = '';
+  });
+
+  document.addEventListener('mousemove', function(e) { flee(e.clientX, e.clientY); });
+  document.addEventListener('touchmove', function(e) {
+    if (e.touches[0]) flee(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+}
+
+function flee(cx, cy) {
+  var now = Date.now();
+  if (now - lastFlee < 250) return;
+  var btn  = document.getElementById('btnNon');
+  var rect = btn.getBoundingClientRect();
+  var dist = Math.hypot(cx - (rect.left + rect.width / 2), cy - (rect.top + rect.height / 2));
+  if (dist < 140) {
+    lastFlee = now;
+    var m = 20, bw = btn.offsetWidth, bh = btn.offsetHeight;
+    btn.style.left = (m + Math.random() * (window.innerWidth  - bw - m * 2)) + 'px';
+    btn.style.top  = (m + Math.random() * (window.innerHeight - bh - m * 2)) + 'px';
+  }
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('show', !!msg);
+}
+
+// Floating hearts
+var bg = document.getElementById('heartsBg');
+['🩷','❤️','💕','💗','💓'].forEach(function(e) {
+  for (var j = 0; j < 4; j++) {
+    var h = document.createElement('span');
+    h.className = 'heart-float'; h.textContent = e;
+    h.style.left = Math.random() * 100 + '%';
+    h.style.fontSize = (14 + Math.random() * 16) + 'px';
+    h.style.animationDuration = (6 + Math.random() * 10) + 's';
+    h.style.animationDelay = (Math.random() * 8) + 's';
+    bg.appendChild(h);
+  }
+});
+</script>
+
+</body>
+</html>

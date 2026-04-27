@@ -3,19 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Une question... 🩷</title>
+<title>Pour toi 🩷</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lora:ital,wght@0,400;1,400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
-  html,body { height:100%; }
+  html,body { height:100%; overflow:hidden; }
+
   body {
     min-height:100vh;
     background:linear-gradient(135deg,#ffd6e0 0%,#ffb3c6 40%,#ff85a1 100%);
-    font-family:'Fredoka One',cursive;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
+    font-family:'Fredoka One',cursive;
     position:relative;
   }
+
+  /* Floating hearts bg */
   .hearts-bg { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
   .heart-float { position:absolute; opacity:0; animation:floatUp linear infinite; }
   @keyframes floatUp {
@@ -23,251 +26,270 @@
     10%  { opacity:0.5; } 90% { opacity:0.2; }
     100% { transform:translateY(-10vh) scale(1.2); opacity:0; }
   }
-  .main { position:relative; z-index:1; text-align:center; padding:24px 20px; width:100%; max-width:520px; }
-  h1 { font-family:'Fredoka One',cursive; font-weight:400; font-size:clamp(20px,5vw,28px); color:#c8385a; margin-bottom:28px; line-height:1.4; }
 
-  /* GIF — no parent background, no isolation, blend directly with page */
-  .cat-container {
-    width:200px; height:200px;
-    margin:0 auto 32px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  #catImg {
-    width:200px; height:200px;
-    object-fit:contain;
-    mix-blend-mode:multiply;
-    display:block;
-    transition:opacity 0.3s ease;
+  /* ── ENVELOPE SCENE ── */
+  .envelope-scene {
+    position:relative; z-index:2;
+    display:flex; flex-direction:column;
+    align-items:center; gap:24px;
+    cursor:pointer;
   }
 
-  .buttons-wrapper {
+  .hint {
+    font-family:'Lora',serif; font-style:italic;
+    font-size:16px; color:rgba(255,255,255,0.9);
+    letter-spacing:0.5px;
+    animation:hintPulse 2s ease-in-out infinite;
+    text-shadow:0 1px 4px rgba(160,40,60,0.2);
+  }
+  @keyframes hintPulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+  /* Envelope wrapper — perspective for 3D */
+  .env-wrap {
+    perspective:900px;
+    width:320px; height:220px;
+    position:relative;
+  }
+
+  /* The envelope body */
+  .envelope {
+    width:320px; height:220px;
+    position:relative;
+    transform-style:preserve-3d;
+  }
+
+  /* Back of envelope */
+  .env-back {
+    position:absolute; inset:0;
+    background:linear-gradient(145deg,#f5f0e8 0%,#ede8dc 100%);
+    border-radius:4px 4px 8px 8px;
+    box-shadow:0 20px 60px rgba(160,80,80,0.22), 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  /* Left & right inner triangles (V shape inside) */
+  .env-back::before {
+    content:'';
+    position:absolute;
+    bottom:0; left:0; right:0; top:0;
+    background:
+      linear-gradient(to bottom-right, transparent 49.5%, #e2dcd0 50%) left / 50% 100% no-repeat,
+      linear-gradient(to bottom-left,  transparent 49.5%, #e2dcd0 50%) right / 50% 100% no-repeat;
+    border-radius:4px 4px 8px 8px;
+  }
+
+  /* Bottom flap — V shape */
+  .env-bottom {
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:110px;
+    clip-path:polygon(0 100%, 50% 0, 100% 100%);
+    background:linear-gradient(to bottom, #ede5d5, #e0d8c8);
+    border-radius:0 0 8px 8px;
+    z-index:2;
+  }
+
+  /* Top flap — opens via animation */
+  .env-flap {
+    position:absolute;
+    top:0; left:0; right:0;
+    height:160px;
+    clip-path:polygon(0 0, 50% 100%, 100% 0);
+    background:linear-gradient(to bottom, #f0ebe0, #e8e0d0);
+    transform-origin:top center;
+    transform:rotateX(0deg);
+    transition:transform 0.9s cubic-bezier(0.4,0,0.2,1);
+    z-index:10;
+    border-radius:4px 4px 0 0;
+  }
+  .env-flap.open {
+    transform:rotateX(-180deg);
+  }
+
+  /* Wax seal */
+  .seal {
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:54px; height:54px;
+    background:radial-gradient(circle at 38% 38%, #e03030, #a01010);
+    border-radius:50%;
+    z-index:11;
     display:flex; align-items:center; justify-content:center;
-    gap:20px; flex-wrap:nowrap;
+    font-size:22px;
+    box-shadow:0 3px 12px rgba(140,0,0,0.4), inset 0 1px 3px rgba(255,100,100,0.3);
+    transition:opacity 0.4s ease, transform 0.4s ease;
   }
-  #btnOui {
-    background:#4caf50; color:white;
-    font-family:'Fredoka One',cursive; font-weight:400;
-    border:none; border-radius:18px; cursor:pointer;
-    font-size:26px; padding:18px 52px;
-    box-shadow:0 6px 20px rgba(76,175,80,0.35);
-    transition:font-size 0.4s ease, padding 0.4s ease, border-radius 0.4s ease;
-    white-space:nowrap; flex-shrink:0;
-    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  .seal.hidden { opacity:0; transform:translate(-50%,-50%) scale(0.5); }
+
+  /* ── LETTER ── */
+  .letter {
+    position:fixed;
+    top:50%; left:50%;
+    transform:translate(-50%, 120%);
+    z-index:20;
+    width:88%; max-width:460px;
+    background:rgba(255,252,248,0.97);
+    border-radius:20px;
+    padding:40px 36px 36px;
+    box-shadow:0 24px 60px rgba(160,60,80,0.2), 0 4px 20px rgba(0,0,0,0.08);
+    text-align:center;
+    transition:transform 1.1s cubic-bezier(0.34,1.15,0.64,1), opacity 0.8s ease;
+    opacity:0;
+    pointer-events:none;
   }
-  #btnNon {
-    background:#e53935; color:white;
-    font-family:'Fredoka One',cursive; font-weight:400;
-    border:none; border-radius:50px; cursor:pointer;
-    font-size:18px; padding:14px 28px;
-    box-shadow:0 4px 14px rgba(229,57,53,0.3);
-    white-space:nowrap; flex-shrink:0;
-    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
-    min-width:80px;
+  .letter.visible {
+    transform:translate(-50%,-50%);
+    opacity:1;
+    pointer-events:all;
   }
-  #btnNon.fleeing {
-    position:fixed; z-index:100;
-    transition:left 0.5s cubic-bezier(0.34,1.2,0.64,1),
-                top  0.5s cubic-bezier(0.34,1.2,0.64,1);
+
+  .letter-hearts { font-size:26px; margin-bottom:16px; }
+
+  .letter h2 {
+    font-family:'Fredoka One',cursive;
+    color:#c8385a; font-size:26px; font-weight:400;
+    margin-bottom:22px;
+  }
+
+  .letter-text {
+    font-family:'Lora',serif; font-size:15px;
+    color:#6b4050; line-height:1.95;
+    text-align:center;
+  }
+  .letter-text p { margin-bottom:13px; }
+  .letter-text p:last-child { margin-bottom:0; }
+
+  .letter-bottom { font-size:20px; margin:18px 0; }
+
+  .btn-continuer {
+    display:inline-block; margin-top:20px;
+    padding:13px 38px;
+    background:linear-gradient(135deg,#e8597a,#c8385a);
+    color:white; font-family:'Fredoka One',cursive;
+    font-size:16px; border:none; border-radius:50px;
+    cursor:pointer; text-decoration:none;
+    box-shadow:0 6px 20px rgba(200,56,90,0.35);
+    transition:transform 0.2s, box-shadow 0.2s;
     touch-action:manipulation;
+    opacity:0;
+    transform:translateY(10px);
+    animation:none;
   }
-  .toast {
-    margin-top:20px; font-family:'Lora',serif; font-style:italic;
-    color:#b03060; font-size:15px; min-height:24px;
-    opacity:0; transition:opacity 0.4s ease;
+  .btn-continuer.show {
+    animation:btnAppear 0.5s ease 0.6s both;
   }
-  .toast.show { opacity:1; }
+  @keyframes btnAppear {
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  /* Music button */
+  #musicBtn {
+    position:fixed; bottom:16px; right:16px;
+    width:44px; height:44px; border-radius:50%;
+    border:none; background:rgba(255,255,255,0.85);
+    font-size:20px; cursor:pointer; z-index:99999;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    touch-action:manipulation; display:none;
+  }
 </style>
 </head>
 <body>
+
 <div class="hearts-bg" id="heartsBg"></div>
-<div class="main">
-  <h1>Veux-tu être à nouveau mon amoureuse ? 🩷</h1>
-  <div class="cat-container">
-    <img id="catImg" alt="" src="https://media.tenor.com/_xQ3HRStAYQAAAAj/peach-goma.gif">
+
+<!-- Envelope -->
+<button class="envelope-scene" id="envScene" onclick="openEnvelope()" style="background:none;border:none;padding:0;cursor:pointer;">
+  <div class="env-wrap">
+    <div class="envelope" id="envelope">
+      <div class="env-back"></div>
+      <div class="env-bottom"></div>
+      <div class="env-flap" id="envFlap"></div>
+      <div class="seal" id="seal">🩷</div>
+    </div>
   </div>
-  <div class="buttons-wrapper">
-    <button id="btnOui" onclick="clickOui()">Oui</button>
-    <button id="btnNon" onclick="clickNon()">Non</button>
+  <div class="hint">Clique pour ouvrir 🩷</div>
+</button>
+
+<!-- Letter (hidden initially) -->
+<div class="letter" id="letter">
+  <div class="letter-hearts">🩷 🩷 🩷</div>
+  <h2>Sirine</h2>
+  <div class="letter-text">
+    <p>Je préfère passer chaque jour sans toi avec l'espoir de te retrouver plutôt qu'un seul jour avec la certitude de t'avoir perdue pour toujours.</p>
+    <p>Je brûle d'amour pour toi. D'un amour du cœur mais aussi d'un amour qui veut ton bien, qui veut te voir heureuse, grandir et construire quelque chose de sain.</p>
+    <p>C'est pourquoi je te demande...</p>
   </div>
-  <div class="toast" id="toast"></div>
+  <div class="letter-bottom">🩷</div>
+  <a class="btn-continuer" id="btnContinuer" href="question.html">Continuer →</a>
 </div>
 
+<!-- Music -->
+<audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
+<button id="musicBtn" onclick="toggleMute()">🔊</button>
+
 <script>
-// ── Direct GIF URLs (hardcoded — no API, no CORS) ─────────────────────
-const GIFS = [
-  'https://media.tenor.com/_xQ3HRStAYQAAAAj/peach-goma.gif',      // 0 — initial
-  'https://media.tenor.com/g7d2LDaf27EAAAAj/love-you.gif',         // 1 — clic 1
-  'https://media.tenor.com/pwzFZHnFRF4AAAAj/tkthao219-tooji.gif', // 2 — clic 2
-  'https://media.tenor.com/tXJsHJmrkIcAAAAj/bubu-dudu.gif',       // 3 — clic 3
-  'https://media.tenor.com/QohdHKK7bVsAAAAj/peach-goma.gif',      // 4 — clic 4
-  'https://media.tenor.com/mfE9Qgm0QZoAAAAj/peach-goma.gif',      // 5 — clic 5
-];
+  var opened = false;
 
-function showCat(idx) {
-  const img = document.getElementById('catImg');
-  img.style.opacity = '0';
-  setTimeout(function() {
-    img.src = GIFS[Math.min(idx, GIFS.length - 1)];
-    img.style.opacity = '1';
-  }, 200);
-}
+  function openEnvelope() {
+    if (opened) return;
+    opened = true;
 
-// ── State ─────────────────────────────────────────────────────────────
-var nonCount    = 0;
-var isFleeing   = false;
-var ouiUnlocked = false;
-var lastFlee    = 0;
+    // Start music
+    var audio = document.getElementById('m');
+    audio.play().catch(function(){});
+    document.getElementById('musicBtn').style.display = 'block';
 
-var nonTexts = [
-  'Non',
-  "T'es sûre ? 🤔",
-  'Sirine... 😥',
-  'Vraiment ? 😢',
-  "S'il te plaît… 🙏",
-  '😭 😭 😭'
-];
+    // 1. Hide hint
+    document.querySelector('.hint').style.opacity = '0';
+    document.querySelector('.hint').style.transition = 'opacity 0.3s';
 
-function clickOui() {
-  if (!ouiUnlocked) {
-    showToast('Clique quand même sur non pour voir 🫣');
-    return;
+    // 2. Open flap
+    document.getElementById('envFlap').classList.add('open');
+
+    // 3. Hide seal after flap starts opening
+    setTimeout(function() {
+      document.getElementById('seal').classList.add('hidden');
+    }, 200);
+
+    // 4. Letter slides up after flap is open
+    setTimeout(function() {
+      document.getElementById('letter').classList.add('visible');
+    }, 700);
+
+    // 5. Fade out envelope
+    setTimeout(function() {
+      var env = document.getElementById('envScene');
+      env.style.transition = 'opacity 0.6s ease';
+      env.style.opacity = '0';
+      env.style.pointerEvents = 'none';
+    }, 900);
+
+    // 6. Show button
+    setTimeout(function() {
+      document.getElementById('btnContinuer').classList.add('show');
+    }, 1200);
   }
-  window.location.href = 'yes.html';
-}
 
-function clickNon() {
-  nonCount++;
-
-  // Oui grows
-  var btnOui = document.getElementById('btnOui');
-  btnOui.style.fontSize    = Math.min(26 * Math.pow(1.45, nonCount), 90) + 'px';
-  btnOui.style.padding     = Math.min(18 * Math.pow(1.3, nonCount), 70) + 'px '
-                           + Math.min(52 * Math.pow(1.3, nonCount), 160) + 'px';
-  btnOui.style.borderRadius = Math.min(18 + nonCount * 4, 40) + 'px';
-
-  // Non shrinks before flee
-  var btnNon = document.getElementById('btnNon');
-  if (!isFleeing) {
-    btnNon.style.transform = 'scale(' + Math.max(0.5, 1 - nonCount * 0.09) + ')';
+  function toggleMute() {
+    var a = document.getElementById('m');
+    var b = document.getElementById('musicBtn');
+    a.muted = !a.muted;
+    b.textContent = a.muted ? '🔇' : '🔊';
   }
-  btnNon.style.opacity = Math.max(0.5, 1 - nonCount * 0.07);
-  btnNon.textContent = nonTexts[Math.min(nonCount, nonTexts.length - 1)];
 
-  // GIF changes
-  showCat(nonCount);
-
-  // Start flee at 5th click
-  if (nonCount >= 5 && !isFleeing) activateFlee();
-
-  showToast('');
-}
-
-function activateFlee() {
-  isFleeing   = true;
-  ouiUnlocked = true;
-
-  var btn  = document.getElementById('btnNon');
-  var rect = btn.getBoundingClientRect();
-
-  // Disable transition → snap to current position → re-enable
-  btn.style.transition = 'none';
-  btn.style.transform  = 'none';
-  btn.classList.add('fleeing');
-  btn.style.left = rect.left + 'px';
-  btn.style.top  = rect.top  + 'px';
-
-  requestAnimationFrame(function() {
-    btn.style.transition = '';
+  // Floating hearts
+  var bg = document.getElementById('heartsBg');
+  ['🩷','❤️','💕','💗','💓'].forEach(function(e) {
+    for (var j=0; j<4; j++) {
+      var h = document.createElement('span');
+      h.className = 'heart-float'; h.textContent = e;
+      h.style.left = Math.random()*100+'%';
+      h.style.fontSize = (12+Math.random()*14)+'px';
+      h.style.animationDuration = (7+Math.random()*10)+'s';
+      h.style.animationDelay = (Math.random()*8)+'s';
+      bg.appendChild(h);
+    }
   });
-
-  document.addEventListener('mousemove', function(e) { flee(e.clientX, e.clientY); });
-  document.addEventListener('touchmove', function(e) {
-    if (e.touches[0]) flee(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
-}
-
-function flee(cx, cy) {
-  var now = Date.now();
-  if (now - lastFlee < 250) return;
-  var btn  = document.getElementById('btnNon');
-  var rect = btn.getBoundingClientRect();
-  var dist = Math.hypot(cx - (rect.left + rect.width / 2), cy - (rect.top + rect.height / 2));
-  if (dist < 140) {
-    lastFlee = now;
-    var m = 20, bw = btn.offsetWidth, bh = btn.offsetHeight;
-    btn.style.left = (m + Math.random() * (window.innerWidth  - bw - m * 2)) + 'px';
-    btn.style.top  = (m + Math.random() * (window.innerHeight - bh - m * 2)) + 'px';
-  }
-}
-
-function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.toggle('show', !!msg);
-}
-
-// Floating hearts
-var bg = document.getElementById('heartsBg');
-['🩷','❤️','💕','💗','💓'].forEach(function(e) {
-  for (var j = 0; j < 4; j++) {
-    var h = document.createElement('span');
-    h.className = 'heart-float'; h.textContent = e;
-    h.style.left = Math.random() * 100 + '%';
-    h.style.fontSize = (14 + Math.random() * 16) + 'px';
-    h.style.animationDuration = (6 + Math.random() * 10) + 's';
-    h.style.animationDelay = (Math.random() * 8) + 's';
-    bg.appendChild(h);
-  }
-});
 </script>
-
-
-
-  
-  
-  
-    <script>
-    (function(){
-      var a = document.getElementById('m');
-      // Start on first interaction anywhere
-      function start(e) {
-        a.play().then(function(){
-          var btn = document.querySelector('[onclick*="paused"]');
-          if(btn) btn.textContent = '🔊';
-        }).catch(function(){});
-        document.removeEventListener('click',     start);
-        document.removeEventListener('touchstart',start);
-        document.removeEventListener('keydown',   start);
-      }
-      document.addEventListener('click',      start, {once:true, passive:true});
-      document.addEventListener('touchstart', start, {once:true, passive:true});
-      document.addEventListener('keydown',    start, {once:true, passive:true});
-    })();
-  </script>
-  <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
-  <button onclick="var a=document.getElementById('m');if(a.paused){a.play();sessionStorage.setItem('musicStarted','1');this.textContent='🔊';}else{a.pause();this.textContent='🔇';}" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
-  <script>
-    (function(){
-      var a = document.getElementById('m');
-      var btn = document.querySelector('[onclick*="paused"]');
-      // If user already interacted on a previous page, autoplay immediately
-      if (sessionStorage.getItem('musicStarted') === '1') {
-        var t = parseFloat(sessionStorage.getItem('musicTime') || '0');
-        if (t > 0) a.currentTime = t;
-        a.play().then(function(){
-          if(btn) btn.textContent = '🔊';
-        }).catch(function(){
-          // Still blocked — start on next click
-          document.addEventListener('click', function go(){
-            a.play(); if(btn) btn.textContent='🔊';
-            document.removeEventListener('click', go);
-          }, {once:true, passive:true});
-        });
-      }
-      // Save position when leaving
-      window.addEventListener('pagehide',     function(){ sessionStorage.setItem('musicTime', a.currentTime); });
-      window.addEventListener('beforeunload', function(){ sessionStorage.setItem('musicTime', a.currentTime); });
-    })();
-  </script>
 </body>
 </html>
