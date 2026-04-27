@@ -214,48 +214,49 @@ for(var i=0;i<28;i++){
   
   
   
-    <script>
-    (function(){
-      var a = document.getElementById('m');
-      // Start on first interaction anywhere
-      function start(e) {
-        a.play().then(function(){
-          var btn = document.querySelector('[onclick*="paused"]');
-          if(btn) btn.textContent = '🔊';
-        }).catch(function(){});
-        document.removeEventListener('click',     start);
-        document.removeEventListener('touchstart',start);
-        document.removeEventListener('keydown',   start);
-      }
-      document.addEventListener('click',      start, {once:true, passive:true});
-      document.addEventListener('touchstart', start, {once:true, passive:true});
-      document.addEventListener('keydown',    start, {once:true, passive:true});
-    })();
-  </script>
+    
   <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
-  <button onclick="var a=document.getElementById('m');if(a.paused){a.play();sessionStorage.setItem('musicStarted','1');this.textContent='🔊';}else{a.pause();this.textContent='🔇';}" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
+  <button id="mBtn" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
   <script>
-    (function(){
-      var a = document.getElementById('m');
-      var btn = document.querySelector('[onclick*="paused"]');
-      // If user already interacted on a previous page, autoplay immediately
-      if (sessionStorage.getItem('musicStarted') === '1') {
-        var t = parseFloat(sessionStorage.getItem('musicTime') || '0');
-        if (t > 0) a.currentTime = t;
-        a.play().then(function(){
-          if(btn) btn.textContent = '🔊';
-        }).catch(function(){
-          // Still blocked — start on next click
-          document.addEventListener('click', function go(){
-            a.play(); if(btn) btn.textContent='🔊';
-            document.removeEventListener('click', go);
-          }, {once:true, passive:true});
-        });
-      }
-      // Save position when leaving
-      window.addEventListener('pagehide',     function(){ sessionStorage.setItem('musicTime', a.currentTime); });
-      window.addEventListener('beforeunload', function(){ sessionStorage.setItem('musicTime', a.currentTime); });
-    })();
+  (function(){
+    var a   = document.getElementById('m');
+    var btn = document.getElementById('mBtn');
+    var playing = false;
+
+    function play() {
+      if (playing) return;
+      var t = parseFloat(sessionStorage.getItem('mT') || '0');
+      if (t > 0) { try { a.currentTime = t; } catch(e){} }
+      a.play().then(function(){
+        playing = true;
+        btn.textContent = '🔊';
+        sessionStorage.setItem('mOn','1');
+      }).catch(function(){});
+    }
+
+    btn.onclick = function() {
+      if (!playing) { play(); }
+      else { a.muted = !a.muted; btn.textContent = a.muted ? '🔇' : '🔊'; }
+    };
+
+    // Save position every second
+    setInterval(function(){ if(playing) sessionStorage.setItem('mT', a.currentTime); }, 1000);
+
+    // Auto-start if already unlocked from a previous page
+    if (sessionStorage.getItem('mOn') === '1') {
+      // Small delay to let audio element initialize
+      setTimeout(play, 100);
+    }
+
+    // Also start on any user interaction (mouse or touch)
+    function startOnInteract() {
+      play();
+      document.removeEventListener('mousemove',  startOnInteract);
+      document.removeEventListener('touchstart', startOnInteract);
+    }
+    document.addEventListener('mousemove',  startOnInteract, {once:true, passive:true});
+    document.addEventListener('touchstart', startOnInteract, {once:true, passive:true});
+  })();
   </script>
 </body>
 </html>

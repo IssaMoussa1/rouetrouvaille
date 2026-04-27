@@ -224,7 +224,6 @@
 </div>
 
 <!-- Music -->
-<audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
 <button id="musicBtn" onclick="toggleMute()">🔊</button>
 
 <script>
@@ -235,9 +234,8 @@
     opened = true;
 
     // Start music
-    var audio = document.getElementById('m');
-    sessionStorage.setItem('musicStarted','1');
-    audio.play().catch(function(){});
+    sessionStorage.setItem('mOn','1');
+    window._playMusic();
     document.getElementById('musicBtn').style.display = 'block';
 
     // 1. Hide hint
@@ -292,5 +290,21 @@
     }
   });
 </script>
+  <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
+  <button id="mBtn" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:none;">🔊</button>
+  <script>
+  (function(){
+    var a   = document.getElementById('m');
+    var btn = document.getElementById('mBtn');
+    window._playMusic = function() {
+      a.play().then(function(){
+        btn.style.display='block';
+        sessionStorage.setItem('mOn','1');
+        setInterval(function(){ sessionStorage.setItem('mT', a.currentTime); }, 1000);
+      }).catch(function(){});
+    };
+    btn.onclick = function() { a.muted=!a.muted; btn.textContent=a.muted?'🔇':'🔊'; };
+  })();
+  </script>
 </body>
 </html>
