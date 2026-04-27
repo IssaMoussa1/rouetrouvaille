@@ -380,10 +380,21 @@ function spin() {
     drawWheel(currentAngle);
     if (p < 1) { requestAnimationFrame(frame); }
     else {
+      // Snap to nearest segment center
       currentAngle = currentAngle % TWO_PI;
+      var snapAngle = Math.round(currentAngle / SLICE) * SLICE;
+      currentAngle = snapAngle;
+      drawWheel(currentAngle);
+      // Derive winner from final snapped angle
+      var bestIdx = 0, bestDist = Infinity;
+      for (var si = 0; si < N; si++) {
+        var mid = ((currentAngle + si * SLICE + SLICE / 2 - Math.PI / 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+        var dist = Math.min(mid, Math.PI * 2 - mid);
+        if (dist < bestDist) { bestDist = dist; bestIdx = si; }
+      }
       spinning = false;
       setDervisheSpinning(false);
-      setTimeout(() => showResult(winner), 500);
+      setTimeout(() => showResult(bestIdx), 500);
     }
   }
   requestAnimationFrame(frame);

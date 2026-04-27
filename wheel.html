@@ -250,15 +250,15 @@
 <script>
 const SEGMENTS = [
   { label:'Un super pique-nique 🧺', color:'#e8597a',
-    emoji:'🧺', msg:'Un pique-nique rien que pour nous deux, au soleil, avec tout ce qu\'il faut pour être heureux.' },
+    emoji:'🧺', msg:'Avec des supers sandwichs et une super fouta.' },
   { label:'Un super verre au Transistor 🍸', color:'#b84d75',
-    emoji:'🍸', msg:'Un verre au Transistor, comme avant — ta playlist, tes sourires, et moi qui ne te quitte pas des yeux.' },
+    emoji:'🍸', msg:'Promis on paiera cette fois-ci.' },
   { label:'Un super dîner 🍽️', color:'#a8375c',
-    emoji:'🍽️', msg:'Un dîner pour deux, bougies comprises — parce que tu mérites tous les instants qui font briller les yeux.' },
+    emoji:'🍽️', msg:'Parce que tout va mieux l\'estomac plein.' },
   { label:'Un super coucher de soleil 🌅', color:'#d4618a',
-    emoji:'🌅', msg:'Un coucher de soleil ensemble, quelque part de beau, à regarder le ciel changer de couleur.' },
+    emoji:'🌅', msg:'Sur la route des crêtes ou à Cassis.' },
   { label:'Une super surprise 🎁', color:'#c0546e',
-    emoji:'🎁', msg:'Celle-là, c\'est secret. Fais-moi confiance — tu vas adorer.' },
+    emoji:'🎁', msg:'Celle-là, c\'est secret. Fais-moi confiance.' },
 ];
 
 const TWO_PI = Math.PI * 2;
@@ -380,10 +380,21 @@ function spin() {
     drawWheel(currentAngle);
     if (p < 1) { requestAnimationFrame(frame); }
     else {
+      // Snap to nearest segment center
       currentAngle = currentAngle % TWO_PI;
+      var snapAngle = Math.round(currentAngle / SLICE) * SLICE;
+      currentAngle = snapAngle;
+      drawWheel(currentAngle);
+      // Derive winner from final snapped angle
+      var bestIdx = 0, bestDist = Infinity;
+      for (var si = 0; si < N; si++) {
+        var mid = ((currentAngle + si * SLICE + SLICE / 2 - Math.PI / 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+        var dist = Math.min(mid, Math.PI * 2 - mid);
+        if (dist < bestDist) { bestDist = dist; bestIdx = si; }
+      }
       spinning = false;
       setDervisheSpinning(false);
-      setTimeout(() => showResult(winner), 500);
+      setTimeout(() => showResult(bestIdx), 500);
     }
   }
   requestAnimationFrame(frame);
