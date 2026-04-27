@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tourne la Rouetrouvaille 🎡</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lora:ital,wght@0,400;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; width:100%; }
+  body {
+    min-height:100vh;
+    background:linear-gradient(160deg, #FFE566 0%, #FFB347 35%, #ff85a1 75%, #ff6eb4 100%);
+    font-family:'Fredoka One', cursive;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .floaters-bg { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+  .floater { position:absolute; opacity:0; animation:floatUp linear infinite; pointer-events:none; user-select:none; }
+  @keyframes floatUp {
+    0%   { transform:translateY(100vh) rotate(0deg) scale(0.5); opacity:0; }
+    10%  { opacity:0.7; } 90% { opacity:0.3; }
+    100% { transform:translateY(-10vh) rotate(360deg) scale(1.1); opacity:0; }
+  }
+
+  /* ── Main centered container ── */
+  .scene {
+    position:relative; z-index:1;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:0;
+    padding:20px 16px 28px;
+    width:100%;
+    max-width:720px;
+    margin:0 auto;
+  }
+
+  h1 {
+    font-family:'Fredoka One', cursive;
+    font-size:clamp(18px,3.5vw,26px);
+    color:#c8385a; text-align:center;
+    font-weight:400; line-height:1.4;
+    margin-bottom:24px;
+  }
+
+  /* Three-column grid: derviche | wheel | derviche */
+  .main-row {
+    display:grid;
+    grid-template-columns:100px minmax(240px,460px) 100px;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    width:100%;
+  }
+
+  /* ── Derviches ── */
+  .derviche-col { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .derviche-label { font-family:'Fredoka One',cursive; font-size:12px; color:#c8385a; opacity:0.8; text-align:center; }
+  .derviche-3d { width:90px; height:150px; display:flex; align-items:center; justify-content:center; }
+  .derviche-svg { display:block; }
+  .derviche-svg.spinning { animation:poleSpin 1s linear infinite; }
+  @keyframes poleSpin {
+    0%   { transform:perspective(300px) rotateY(0deg)   scaleX(1); }
+    25%  { transform:perspective(300px) rotateY(90deg)  scaleX(0.05); }
+    50%  { transform:perspective(300px) rotateY(180deg) scaleX(1); }
+    75%  { transform:perspective(300px) rotateY(270deg) scaleX(0.05); }
+    100% { transform:perspective(300px) rotateY(360deg) scaleX(1); }
+  }
+
+  /* ── Wheel ── */
+  .wheel-col { display:flex; align-items:center; justify-content:center; }
+  .wheel-area { position:relative; display:inline-flex; align-items:center; justify-content:center; }
+  #wheelCanvas {
+    border-radius:50%;
+    box-shadow:0 12px 40px rgba(200,56,90,0.3), 0 0 0 6px rgba(255,255,255,0.6);
+    display:block;
+  }
+  .pointer {
+    position:absolute; top:-22px; left:50%; transform:translateX(-50%);
+    width:0; height:0;
+    border-left:16px solid transparent; border-right:16px solid transparent;
+    border-top:32px solid #c8385a;
+    filter:drop-shadow(0 3px 6px rgba(200,56,90,0.4));
+    z-index:2;
+  }
+  .wheel-center {
+    position:absolute; width:52px; height:52px;
+    background:white; border-radius:50%;
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px; z-index:3;
+  }
+
+  .btn-wrap { margin-top:28px; }
+  .btn-spin {
+    padding:16px 52px;
+    background:linear-gradient(135deg,#e8597a,#c8385a);
+    color:white; font-family:'Fredoka One',cursive;
+    font-size:20px; font-weight:400;
+    border:none; border-radius:50px; cursor:pointer;
+    box-shadow:0 6px 20px rgba(200,56,90,0.4);
+    transition:transform 0.2s, box-shadow 0.2s, opacity 0.3s;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+  .btn-spin:hover  { transform:translateY(-2px) scale(1.03); }
+  .btn-spin:active { transform:scale(0.97); }
+  .btn-spin:disabled { opacity:0.5; cursor:default; transform:none; }
+
+  /* ── Result ── */
+  .result-overlay {
+    position:fixed; inset:0;
+    background:rgba(200,56,90,0.25); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    z-index:10; opacity:0; pointer-events:none; transition:opacity 0.5s ease;
+  }
+  .result-overlay.show { opacity:1; pointer-events:all; }
+  .result-card {
+    background:rgba(255,255,255,0.97); border-radius:28px; padding:44px 40px;
+    max-width:380px; width:88%; text-align:center;
+    box-shadow:0 24px 60px rgba(200,56,90,0.25);
+    animation:cardPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes cardPop { from{opacity:0;transform:scale(0.75)} to{opacity:1;transform:scale(1)} }
+  .result-emoji { font-size:56px; margin-bottom:12px; animation:bounce 0.8s ease-in-out infinite alternate; }
+  @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-10px)} }
+  .result-label { font-family:'Fredoka One',cursive; font-size:13px; color:#b06080; margin-bottom:8px; letter-spacing:1px; text-transform:uppercase; }
+  .result-title { font-family:'Fredoka One',cursive; font-size:clamp(22px,5vw,28px); color:#c8385a; margin-bottom:16px; line-height:1.3; }
+  .result-msg { font-family:'Lora',serif; font-style:italic; font-size:15px; color:#7a4558; line-height:1.8; margin-bottom:28px; }
+  .btn-close { padding:12px 36px; background:linear-gradient(135deg,#e8597a,#c8385a); color:white; font-family:'Fredoka One',cursive; font-size:17px; border:none; border-radius:50px; cursor:pointer; touch-action:manipulation; }
+
+  @media(max-width:520px) {
+    .main-row { grid-template-columns:1fr; }
+    .derviche-col { display:none; }
+    .wheel-col { grid-column:1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="floaters-bg" id="floatersBg"></div>
+
+<div class="scene">
+  <h1>Tourne la Rouetrouvaille 🎡</h1>
+
+  <div class="main-row">
+
+    <!-- Derviche LEFT — Rumi — fez -->
+    <div class="derviche-col">
+      <div class="derviche-3d">
+        <svg class="derviche-svg" id="derviche1" width="90" height="150" viewBox="0 0 90 150">
+          <ellipse cx="45" cy="145" rx="22" ry="5" fill="rgba(180,60,90,0.15)"/>
+          <ellipse cx="45" cy="115" rx="42" ry="20" fill="white" stroke="#e0d0c0" stroke-width="1"/>
+          <ellipse cx="45" cy="110" rx="34" ry="15" fill="#f8f4ef"/>
+          <ellipse cx="45" cy="106" rx="24" ry="10" fill="white"/>
+          <line x1="45" y1="80" x2="6"  y2="126" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="84" y2="126" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="4"  y2="108" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="86" y2="108" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="45" y2="134" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="20" y2="132" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="70" y2="132" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <ellipse cx="38" cy="138" rx="7" ry="4" fill="#2c2c2c" transform="rotate(-10 38 138)"/>
+          <ellipse cx="52" cy="138" rx="7" ry="4" fill="#2c2c2c" transform="rotate(10 52 138)"/>
+          <rect x="37" y="58" width="16" height="26" rx="5" fill="white" stroke="#e0d0c0" stroke-width="0.8"/>
+          <rect x="35" y="78" width="20" height="5" rx="2.5" fill="#1a1a1a"/>
+          <line x1="44" y1="66" x2="72" y2="46" stroke="#f4c49a" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="73" cy="44" r="4" fill="#f4c49a"/>
+          <line x1="46" y1="70" x2="18" y2="86" stroke="#f4c49a" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="17" cy="88" r="4" fill="#f4c49a"/>
+          <rect x="41" y="47" width="8" height="13" rx="3" fill="#f4c49a"/>
+          <circle cx="45" cy="37" r="11" fill="#f4c49a"/>
+          <circle cx="42" cy="37" r="1.3" fill="#7a4030"/>
+          <circle cx="48" cy="37" r="1.3" fill="#7a4030"/>
+          <path d="M42 41 Q45 43 48 41" stroke="#7a4030" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <rect x="37" y="18" width="16" height="14" rx="1" fill="#cc2020"/>
+          <ellipse cx="45" cy="18" rx="9" ry="3.5" fill="#dd3030"/>
+          <ellipse cx="45" cy="32" rx="9" ry="3.5" fill="#bb1818"/>
+          <line x1="45" y1="18" x2="52" y2="10" stroke="#8B6914" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="52" cy="9" r="2" fill="#8B6914"/>
+        </svg>
+      </div>
+      <span class="derviche-label">Rumi</span>
+    </div>
+
+    <!-- WHEEL -->
+    <div class="wheel-col">
+      <div class="wheel-area">
+        <div class="pointer"></div>
+        <canvas id="wheelCanvas" width="460" height="460"></canvas>
+        <div class="wheel-center">🩷</div>
+      </div>
+    </div>
+
+    <!-- Derviche RIGHT — Shams — bald -->
+    <div class="derviche-col">
+      <div class="derviche-3d">
+        <svg class="derviche-svg" id="derviche2" width="90" height="150" viewBox="0 0 90 150">
+          <ellipse cx="45" cy="145" rx="22" ry="5" fill="rgba(180,60,90,0.15)"/>
+          <ellipse cx="45" cy="115" rx="42" ry="20" fill="white" stroke="#e0d0c0" stroke-width="1"/>
+          <ellipse cx="45" cy="110" rx="34" ry="15" fill="#f8f4ef"/>
+          <ellipse cx="45" cy="106" rx="24" ry="10" fill="white"/>
+          <line x1="45" y1="80" x2="6"  y2="126" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="84" y2="126" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="4"  y2="108" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="86" y2="108" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="45" y2="134" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="20" y2="132" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <line x1="45" y1="80" x2="70" y2="132" stroke="#c8b89a" stroke-width="1" opacity="0.7"/>
+          <ellipse cx="38" cy="138" rx="7" ry="4" fill="#2c2c2c" transform="rotate(-10 38 138)"/>
+          <ellipse cx="52" cy="138" rx="7" ry="4" fill="#2c2c2c" transform="rotate(10 52 138)"/>
+          <rect x="37" y="58" width="16" height="26" rx="5" fill="white" stroke="#e0d0c0" stroke-width="0.8"/>
+          <rect x="35" y="78" width="20" height="5" rx="2.5" fill="#1a1a1a"/>
+          <line x1="46" y1="66" x2="18" y2="46" stroke="#f4c49a" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="17" cy="44" r="4" fill="#f4c49a"/>
+          <line x1="44" y1="70" x2="72" y2="86" stroke="#f4c49a" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="73" cy="88" r="4" fill="#f4c49a"/>
+          <rect x="41" y="47" width="8" height="13" rx="3" fill="#f4c49a"/>
+          <circle cx="45" cy="37" r="11" fill="#e8b88a"/>
+          <ellipse cx="41" cy="31" rx="4" ry="3" fill="rgba(255,255,255,0.25)" transform="rotate(-20 41 31)"/>
+          <circle cx="42" cy="37" r="1.3" fill="#7a4030"/>
+          <circle cx="48" cy="37" r="1.3" fill="#7a4030"/>
+          <path d="M42 41 Q45 43 48 41" stroke="#7a4030" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <path d="M40 43 Q45 47 50 43" stroke="#c8945a" stroke-width="1.5" fill="none" opacity="0.6"/>
+        </svg>
+      </div>
+      <span class="derviche-label">Shams de Tabriz</span>
+    </div>
+
+  </div>
+
+  <div class="btn-wrap">
+    <button class="btn-spin" id="btnSpin" onclick="spin()">Tourner la roue ✨</button>
+  </div>
+</div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <div class="result-emoji" id="resultEmoji">🎉</div>
+    <div class="result-label">Ce sera...</div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <button class="btn-close" onclick="closeResult()">🩷 Parfait !</button>
+  </div>
+</div>
+
+<script>
+const SEGMENTS = [
+  { label:'Un super pique-nique 🧺', color:'#e8597a',
+    emoji:'🧺', msg:'Avec des supers sandwichs et une super fouta.' },
+  { label:'Un super verre au Transistor 🍸', color:'#b84d75',
+    emoji:'🍸', msg:'Promis on paiera cette fois-ci.' },
+  { label:'Un super dîner 🍽️', color:'#a8375c',
+    emoji:'🍽️', msg:'Parce que tout va mieux l\'estomac plein.' },
+  { label:'Un super coucher de soleil 🌅', color:'#d4618a',
+    emoji:'🌅', msg:'Sur la route des crêtes ou à Cassis.' },
+  { label:'Une super surprise 🎁', color:'#c0546e',
+    emoji:'🎁', msg:'Celle-là, c\'est secret. Fais-moi confiance.' },
+];
+
+const TWO_PI = Math.PI * 2;
+const N      = SEGMENTS.length;
+const SLICE  = TWO_PI / N;
+const SPIN_MS = 7000;
+let spinning = false, currentAngle = 0;
+
+const canvas = document.getElementById('wheelCanvas');
+const ctx    = canvas.getContext('2d');
+const SIZE   = 460;
+const CX = SIZE/2, CY = SIZE/2, R = SIZE/2 - 5;
+
+// Measure max label width to pick font size
+function pickFontSize() {
+  // Try sizes from 15 down until all labels fit within their arc chord
+  const maxChord = 2 * R * 0.55 * Math.sin(SLICE / 2) * 0.88;
+  for (let fs = 20; fs >= 11; fs--) {
+    ctx.font = `bold ${fs}px Fredoka One, cursive`;
+    let fits = true;
+    SEGMENTS.forEach(seg => {
+      // Split label at spaces into lines of max 2 words
+      const words = seg.label.split(' ');
+      // find the longest single word
+      words.forEach(w => {
+        if (ctx.measureText(w).width > maxChord) fits = false;
+      });
+    });
+    if (fits) return fs;
+  }
+  return 9;
+}
+
+function wrapText(text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let cur = '';
+  words.forEach(w => {
+    const test = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && cur) {
+      lines.push(cur); cur = w;
+    } else { cur = test; }
+  });
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+function drawWheel(angle) {
+  ctx.clearRect(0,0,SIZE,SIZE);
+
+  const fs = pickFontSize();
+  const lh = fs + 4;
+  // Max width for text — width of chord at 55% radius
+  const textR  = R * 0.55;
+  const maxW   = 2 * textR * Math.sin(SLICE/2) * 0.82;
+
+  SEGMENTS.forEach((seg,i) => {
+    const start = angle + i*SLICE - Math.PI/2;
+    const end   = start + SLICE;
+    const mid   = start + SLICE/2;
+
+    // Slice fill
+    ctx.beginPath();
+    ctx.moveTo(CX,CY);
+    ctx.arc(CX,CY,R,start,end);
+    ctx.closePath();
+    ctx.fillStyle   = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth   = 2.5;
+    ctx.stroke();
+
+    // Text (label with inline emoji) — always upright, at 58% radius
+    const tx = CX + Math.cos(mid) * textR;
+    const ty = CY + Math.sin(mid) * textR;
+
+    ctx.save();
+    ctx.translate(tx, ty);
+    ctx.font         = `bold ${fs}px Fredoka One, cursive`;
+    ctx.fillStyle    = 'white';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+
+    const lines = wrapText(seg.label, maxW);
+    const totalH = lines.length * lh;
+    lines.forEach((line, li) => {
+      ctx.fillText(line, 0, li * lh - totalH/2 + lh/2);
+    });
+    ctx.restore();
+  });
+}
+
+drawWheel(currentAngle);
+
+function setDervisheSpinning(on) {
+  ['derviche1','derviche2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (on) el.classList.add('spinning');
+    else    el.classList.remove('spinning');
+  });
+}
+
+function spin() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById('btnSpin').disabled = true;
+  setDervisheSpinning(true);
+
+  const winner      = Math.floor(Math.random() * N);
+  const extraTurns  = 5 + Math.floor(Math.random() * 3);
+  const targetAngle = currentAngle + TWO_PI * extraTurns + (TWO_PI - (winner * SLICE + SLICE/2));
+  const startAngle  = currentAngle;
+  const startTime   = performance.now();
+
+  function easeOut(t) { return 1 - Math.pow(1-t, 3); }
+  function frame(now) {
+    const p = Math.min((now - startTime) / SPIN_MS, 1);
+    currentAngle = startAngle + (targetAngle - startAngle) * easeOut(p);
+    drawWheel(currentAngle);
+    if (p < 1) { requestAnimationFrame(frame); }
+    else {
+      currentAngle = currentAngle % TWO_PI;
+      spinning = false;
+      setDervisheSpinning(false);
+      setTimeout(() => showResult(winner), 500);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function showResult(i) {
+  const seg = SEGMENTS[i];
+  document.getElementById('resultEmoji').textContent = seg.emoji;
+  document.getElementById('resultTitle').textContent = seg.label;
+  document.getElementById('resultMsg').textContent   = seg.msg;
+  document.getElementById('resultOverlay').classList.add('show');
+}
+function closeResult() {
+  document.getElementById('resultOverlay').classList.remove('show');
+  document.getElementById('btnSpin').disabled = false;
+}
+
+// Responsive: resize canvas display size
+function resizeWheel() {
+  const sideW  = 100 * 2 + 16 * 2; // two derviche cols + gaps
+  const avail  = Math.min(window.innerWidth - sideW - 32, 460);
+  const clamped = Math.max(avail, 220);
+  canvas.style.width  = clamped + 'px';
+  canvas.style.height = clamped + 'px';
+}
+resizeWheel();
+window.addEventListener('resize', resizeWheel);
+
+// Floaters
+const bg = document.getElementById('floatersBg');
+const FLOATS = ['🩷','💛','❤️','💖','☀️','🌟','💗','💛','🩷','❤️','⭐','☀️','🩷','💜','🧡','🌟','☀️','💛'];
+for (let i=0;i<24;i++) {
+  const f = document.createElement('span');
+  f.className   = 'floater';
+  f.textContent = FLOATS[i % FLOATS.length];
+  f.style.left              = Math.random()*100+'%';
+  f.style.fontSize          = (14+Math.random()*18)+'px';
+  f.style.animationDuration = (7+Math.random()*10)+'s';
+  f.style.animationDelay    = (Math.random()*8)+'s';
+  bg.appendChild(f);
+}
+</script>
+
+
+
+  
+  
+  
+    <script>
+    (function(){
+      var a = document.getElementById('m');
+      // Start on first interaction anywhere
+      function start(e) {
+        a.play().then(function(){
+          var btn = document.querySelector('[onclick*="paused"]');
+          if(btn) btn.textContent = '🔊';
+        }).catch(function(){});
+        document.removeEventListener('click',     start);
+        document.removeEventListener('touchstart',start);
+        document.removeEventListener('keydown',   start);
+      }
+      document.addEventListener('click',      start, {once:true, passive:true});
+      document.addEventListener('touchstart', start, {once:true, passive:true});
+      document.addEventListener('keydown',    start, {once:true, passive:true});
+    })();
+  </script>
+  <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
+  <button onclick="var a=document.getElementById('m');if(a.paused){a.play();sessionStorage.setItem('musicStarted','1');this.textContent='🔊';}else{a.pause();this.textContent='🔇';}" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
+  <script>
+    (function(){
+      var a = document.getElementById('m');
+      var btn = document.querySelector('[onclick*="paused"]');
+      // If user already interacted on a previous page, autoplay immediately
+      if (sessionStorage.getItem('musicStarted') === '1') {
+        var t = parseFloat(sessionStorage.getItem('musicTime') || '0');
+        if (t > 0) a.currentTime = t;
+        a.play().then(function(){
+          if(btn) btn.textContent = '🔊';
+        }).catch(function(){
+          // Still blocked — start on next click
+          document.addEventListener('click', function go(){
+            a.play(); if(btn) btn.textContent='🔊';
+            document.removeEventListener('click', go);
+          }, {once:true, passive:true});
+        });
+      }
+      // Save position when leaving
+      window.addEventListener('pagehide',     function(){ sessionStorage.setItem('musicTime', a.currentTime); });
+      window.addEventListener('beforeunload', function(){ sessionStorage.setItem('musicTime', a.currentTime); });
+    })();
+  </script>
+</body>
+</html>

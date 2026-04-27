@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Oui ! ☀️</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Lora:ital,wght@0,400;1,400&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body {
+    min-height:100vh;
+    background:linear-gradient(160deg, #FFE566 0%, #FFB347 35%, #ff85a1 75%, #ff6eb4 100%);
+    font-family:'Fredoka One',cursive;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    position:relative; overflow:hidden;
+  }
+
+  /* ── Big sun behind everything ── */
+  .big-sun {
+    position:fixed;
+    top:-80px; left:50%;
+    transform:translateX(-50%);
+    z-index:0; pointer-events:none;
+    animation:sunRise 1.2s cubic-bezier(0.34,1.2,0.64,1) both;
+  }
+  @keyframes sunRise {
+    from { top:-200px; opacity:0; }
+    to   { top:-80px;  opacity:1; }
+  }
+  .big-sun-circle {
+    width:280px; height:280px;
+    background:radial-gradient(circle, #fff9aa 0%, #FFE566 40%, #FFD700 75%, #FFA500 100%);
+    border-radius:50%;
+    box-shadow:
+      0 0 60px rgba(255,220,0,0.7),
+      0 0 120px rgba(255,180,0,0.4),
+      0 0 200px rgba(255,150,0,0.2);
+    animation:sunGlow 3s ease-in-out infinite;
+  }
+  @keyframes sunGlow {
+    0%,100% { box-shadow:0 0 60px rgba(255,220,0,0.7),0 0 120px rgba(255,180,0,0.4),0 0 200px rgba(255,150,0,0.2); }
+    50%      { box-shadow:0 0 80px rgba(255,220,0,0.9),0 0 160px rgba(255,180,0,0.55),0 0 260px rgba(255,150,0,0.3); }
+  }
+  /* Sun rays */
+  .rays {
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:360px; height:360px;
+    animation:rotateSlow 20s linear infinite;
+  }
+  @keyframes rotateSlow { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+  .ray {
+    position:absolute;
+    top:50%; left:50%;
+    width:4px; height:80px;
+    background:linear-gradient(to bottom, rgba(255,230,0,0.6), transparent);
+    border-radius:2px;
+    transform-origin:0 0;
+  }
+
+  /* ── Confetti canvas ── */
+  #confettiCanvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+
+  /* ── Floaters ── */
+  .floaters-bg { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:2; }
+  .floater { position:absolute; opacity:0; animation:floatUp linear infinite; pointer-events:none; user-select:none; }
+  @keyframes floatUp {
+    0%   { transform:translateY(100vh) rotate(0deg) scale(0.5); opacity:0; }
+    10%  { opacity:0.8; } 90% { opacity:0.3; }
+    100% { transform:translateY(-10vh) rotate(360deg) scale(1.1); opacity:0; }
+  }
+
+  /* ── Card ── */
+  .card {
+    position:relative; z-index:3;
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(16px);
+    border-radius:28px;
+    padding:36px 40px 40px;
+    max-width:420px; width:90%; text-align:center;
+    box-shadow:0 20px 60px rgba(200,100,0,0.18), 0 4px 20px rgba(0,0,0,0.06);
+    animation:cardPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes cardPop { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+
+  .top-emoji { font-size:40px; margin-bottom:12px; animation:bounce 1s ease-in-out infinite alternate; }
+  @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-8px)} }
+
+  h1 { font-family:'Fredoka One',cursive; font-size:clamp(22px,5vw,30px); color:#c8385a; margin-bottom:20px; font-weight:400; line-height:1.3; }
+
+  .cat-wrap { width:220px; height:220px; margin:0 auto 20px; }
+  #catHappy { width:220px; height:220px; object-fit:contain; mix-blend-mode:multiply; display:block; }
+
+  .message { font-family:'Lora',serif; font-style:italic; font-size:16px; color:#7a4558; line-height:1.8; margin-bottom:28px; }
+
+  .btn-roue {
+    display:inline-block; padding:15px 42px;
+    background:linear-gradient(135deg,#e8597a,#c8385a);
+    color:white; font-family:'Fredoka One',cursive; font-size:18px;
+    border:none; border-radius:50px; cursor:pointer; text-decoration:none;
+    box-shadow:0 6px 20px rgba(200,56,90,0.35);
+    transition:transform 0.2s, box-shadow 0.2s;
+    touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  }
+  .btn-roue:hover { transform:translateY(-2px) scale(1.03); }
+  .btn-roue:active { transform:scale(0.97); }
+</style>
+</head>
+<body>
+
+<!-- Big sun — single SVG so rays and circle share exact same center -->
+<div class="big-sun">
+  <svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg"
+       style="animation:rotateSlow 20s linear infinite; display:block;">
+    <!-- Rays -->
+    <g transform="translate(160,160)">
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(0)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(30)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(60)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(90)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(120)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(150)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(180)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(210)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(240)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(270)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(300)"/>
+      <rect x="-3" y="-155" width="6" height="55" rx="3" fill="rgba(255,220,0,0.6)" transform="rotate(330)"/>
+    </g>
+    <!-- Sun circle centered at 160,160 -->
+    <defs>
+      <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#fff9aa"/>
+        <stop offset="40%"  stop-color="#FFE566"/>
+        <stop offset="75%"  stop-color="#FFD700"/>
+        <stop offset="100%" stop-color="#FFA500"/>
+      </radialGradient>
+    </defs>
+    <circle cx="160" cy="160" r="90" fill="url(#sunGrad)"
+            filter="url(#glow)"/>
+    <defs>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="12" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+  </svg>
+</div>
+
+<canvas id="confettiCanvas"></canvas>
+<div class="floaters-bg" id="floatersBg"></div>
+
+<div class="card">
+  <div class="top-emoji">☀️🩷☀️</div>
+  <h1>Eh mercééééé la zone</h1>
+  <div class="cat-wrap">
+    <img id="catHappy" alt="">
+  </div>
+  <div class="message">
+    <p>Et maintenant... une petite surprise t'attend 🎡</p>
+  </div>
+  <a class="btn-roue" href="v2_wheel.html">Découvrir la surprise →</a>
+</div>
+
+<script>
+// GIF direct
+document.getElementById('catHappy').src = 'https://media.tenor.com/eNHbizSfVb0AAAAj/lovemode-cute.gif';
+
+// ── Confetti ──────────────────────────────────────────────────────────
+var canvas = document.getElementById('confettiCanvas');
+var ctx    = canvas.getContext('2d');
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+window.addEventListener('resize', function(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
+var COLORS = ['#FFE566','#FFB347','#ff85a1','#c8385a','#fff','#FFD700','#90e0ef','#a8dadc','#ff6eb4'];
+var pieces = [];
+for(var i=0;i<160;i++) pieces.push({
+  x:Math.random()*canvas.width, y:Math.random()*canvas.height-canvas.height,
+  w:5+Math.random()*9, h:9+Math.random()*7,
+  color:COLORS[Math.floor(Math.random()*COLORS.length)],
+  rot:Math.random()*Math.PI*2, rotV:(Math.random()-0.5)*0.09,
+  vx:(Math.random()-0.5)*1.8, vy:1.8+Math.random()*2.8,
+});
+(function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  pieces.forEach(function(p){
+    p.x+=p.vx; p.y+=p.vy; p.rot+=p.rotV;
+    if(p.y>canvas.height+20){p.y=-20;p.x=Math.random()*canvas.width;}
+    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+    ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    ctx.restore();
+  });
+  requestAnimationFrame(draw);
+})();
+
+// ── Floaters — suns, hearts, stars ───────────────────────────────────
+var bg = document.getElementById('floatersBg');
+var FLOATS = ['☀️','🩷','❤️','💛','🌟','☀️','💗','💛','🩷','⭐','☀️','💖'];
+for(var i=0;i<28;i++){
+  var f=document.createElement('span'); f.className='floater';
+  f.textContent=FLOATS[i%FLOATS.length];
+  f.style.left=Math.random()*100+'%';
+  f.style.fontSize=(14+Math.random()*20)+'px';
+  f.style.animationDuration=(6+Math.random()*10)+'s';
+  f.style.animationDelay=(Math.random()*7)+'s';
+  bg.appendChild(f);
+}
+</script>
+
+
+
+  
+  
+  
+    <script>
+    (function(){
+      var a = document.getElementById('m');
+      // Start on first interaction anywhere
+      function start(e) {
+        a.play().then(function(){
+          var btn = document.querySelector('[onclick*="paused"]');
+          if(btn) btn.textContent = '🔊';
+        }).catch(function(){});
+        document.removeEventListener('click',     start);
+        document.removeEventListener('touchstart',start);
+        document.removeEventListener('keydown',   start);
+      }
+      document.addEventListener('click',      start, {once:true, passive:true});
+      document.addEventListener('touchstart', start, {once:true, passive:true});
+      document.addEventListener('keydown',    start, {once:true, passive:true});
+    })();
+  </script>
+  <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
+  <button onclick="var a=document.getElementById('m');if(a.paused){a.play();sessionStorage.setItem('musicStarted','1');this.textContent='🔊';}else{a.pause();this.textContent='🔇';}" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
+  <script>
+    (function(){
+      var a = document.getElementById('m');
+      var btn = document.querySelector('[onclick*="paused"]');
+      // If user already interacted on a previous page, autoplay immediately
+      if (sessionStorage.getItem('musicStarted') === '1') {
+        var t = parseFloat(sessionStorage.getItem('musicTime') || '0');
+        if (t > 0) a.currentTime = t;
+        a.play().then(function(){
+          if(btn) btn.textContent = '🔊';
+        }).catch(function(){
+          // Still blocked — start on next click
+          document.addEventListener('click', function go(){
+            a.play(); if(btn) btn.textContent='🔊';
+            document.removeEventListener('click', go);
+          }, {once:true, passive:true});
+        });
+      }
+      // Save position when leaving
+      window.addEventListener('pagehide',     function(){ sessionStorage.setItem('musicTime', a.currentTime); });
+      window.addEventListener('beforeunload', function(){ sessionStorage.setItem('musicTime', a.currentTime); });
+    })();
+  </script>
+</body>
+</html>
