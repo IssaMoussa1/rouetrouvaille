@@ -367,9 +367,13 @@ function spin() {
   document.getElementById('btnSpin').disabled = true;
   setDervisheSpinning(true);
 
-  const winner      = Math.floor(Math.random() * N);
-  const extraTurns  = 5 + Math.floor(Math.random() * 3);
-  const targetAngle = currentAngle + TWO_PI * extraTurns + (TWO_PI - (winner * SLICE + SLICE/2));
+  const winner     = Math.floor(Math.random() * N);
+  const extraTurns = 5 + Math.floor(Math.random() * 3);
+  // Correct formula: account for current rotation so winner lands at top pointer
+  const ca = currentAngle % TWO_PI;
+  const targetPos = (TWO_PI - winner * SLICE - SLICE / 2 + TWO_PI) % TWO_PI;
+  const diff = (targetPos - ca + TWO_PI) % TWO_PI;
+  const targetAngle = currentAngle + extraTurns * TWO_PI + diff;
   const startAngle  = currentAngle;
   const startTime   = performance.now();
 
