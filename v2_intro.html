@@ -184,35 +184,11 @@ for (let i=0; i<16; i++) {
 </script>
 
 
-  <audio id="bgMusic" src="glue-song.mp3" loop preload="auto"></audio>
-  <button id="musicBtn" onclick="toggleMusic()" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);touch-action:manipulation;">🔊</button>
-  <script>
-    var _audio = document.getElementById("bgMusic");
-    var _btn   = document.getElementById("musicBtn");
-    var _muted = false;
 
-    // Resume from where we left off
-    var _saved = parseFloat(sessionStorage.getItem("musicTime") || "0");
-    if (_saved > 0) _audio.currentTime = _saved;
-
-    // Save position when leaving
-    window.addEventListener("pagehide",     function(){ sessionStorage.setItem("musicTime", _audio.currentTime); });
-    window.addEventListener("beforeunload", function(){ sessionStorage.setItem("musicTime", _audio.currentTime); });
-
-    // Try autoplay immediately
-    _audio.play().catch(function() {
-      // Autoplay blocked — start on first click anywhere
-      document.addEventListener("click", function startOnClick() {
-        _audio.play();
-        document.removeEventListener("click", startOnClick);
-      }, { once: true });
-    });
-
-    function toggleMusic() {
-      _muted = !_muted;
-      _audio.muted = _muted;
-      _btn.textContent = _muted ? "🔇" : "🔊";
-    }
-  </script>
+  
+  
+  
+  <audio id="m" src="glue-song.mp3" loop preload="auto"></audio>
+  <button onclick="var a=document.getElementById('m');if(a.paused){a.play();this.textContent='🔊';}else{a.pause();this.textContent='🔇';}" style="position:fixed;bottom:16px;right:16px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);font-size:20px;cursor:pointer;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.2);">🔇</button>
 </body>
 </html>
