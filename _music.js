@@ -1,61 +1,79 @@
 (function() {
-  const SRC = 'glue-song.mp3';
-  const KEY = 'musicTime';
+  const SRC   = 'glue-song.mp3';
+  const KEY   = 'musicTime';
+  const MKEY  = 'musicMuted';
 
   const audio = new Audio(SRC);
   audio.loop    = true;
   audio.volume  = 0.55;
   audio.preload = 'auto';
+  audio.muted   = sessionStorage.getItem(MKEY) === '1';
 
   let started = false;
 
   function startMusic() {
     if (started) return;
+    started = true;
     const saved = parseFloat(sessionStorage.getItem(KEY) || '0');
-    if (saved > 0) {
-      audio.addEventListener('canplay', function onCanPlay() {
-        audio.currentTime = saved;
-        audio.removeEventListener('canplay', onCanPlay);
-      }, { once: true });
-    }
-    audio.play().then(function() { started = true; }).catch(function() {});
+    if (saved > 0) audio.currentTime = saved;
+    audio.play().catch(function(){});
   }
 
-  // Try autoplay immediately
-  startMusic();
+  // Save on exit
+  function saveTime() { sessionStorage.setItem(KEY, audio.currentTime); }
+  window.addEventListener('pagehide',     saveTime);
+  window.addEventListener('beforeunload', saveTime);
 
-  // Fallback on any interaction
-  ['click','touchstart','keydown'].forEach(function(evt) {
-    document.addEventListener(evt, function() { startMusic(); }, { passive: true });
-  });
-
-  // Save position when leaving
-  window.addEventListener('pagehide',     function() { sessionStorage.setItem(KEY, audio.currentTime); });
-  window.addEventListener('beforeunload', function() { sessionStorage.setItem(KEY, audio.currentTime); });
-
-  // Inject mute button — works whether DOM is ready or not
+  // Inject button + start on first click
   function injectBtn() {
     if (document.getElementById('muteBtn')) return;
+
     const btn = document.createElement('button');
     btn.id = 'muteBtn';
-    btn.textContent = '🔊';
+    btn.innerHTML = audio.muted ? '🔇' : '🎵';
+    btn.title = 'Musique';
     Object.assign(btn.style, {
-      position:'fixed', bottom:'16px', right:'16px',
-      background:'rgba(255,255,255,0.75)', border:'none',
-      borderRadius:'50%', width:'42px', height:'42px',
-      fontSize:'18px', cursor:'pointer', zIndex:'9999',
-      boxShadow:'0 2px 8px rgba(0,0,0,0.15)',
-      touchAction:'manipulation'
+      position: 'fixed', bottom: '16px', right: '16px',
+      background: 'rgba(255,255,255,0.85)',
+      border: '2px solid rgba(200,56,90,0.3)',
+      borderRadius: '50%', width: '46px', height: '46px',
+      fontSize: '20px', cursor: 'pointer', zIndex: '99999',
+      boxShadow: '0 3px 10px rgba(0,0,0,0.2)',
+      touchAction: 'manipulation',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      lineHeight: '1'
     });
-    btn.addEventListener('click', function() {
-      startMusic();
-      audio.muted = !audio.muted;
-      btn.textContent = audio.muted ? '🔇' : '🔊';
+
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!started) {
+        startMusic();
+      } else {
+        audio.muted = !audio.muted;
+        sessionStorage.setItem(MKEY, audio.muted ? '1' : '0');
+      }
+      btn.innerHTML = audio.muted ? '🔇' : '🎵';
     });
-    (document.body || document.documentElement).appendChild(btn);
+
+    document.body.appendChild(btn);
+
+    // Try autoplay — if it works, update icon
+    audio.play().then(function() {
+      started = true;
+      btn.innerHTML = audio.muted ? '🔇' : '🎵';
+    }).catch(function() {
+      // Autoplay blocked — wait for first interaction anywhere
+      function onInteract() {
+        startMusic();
+        btn.innerHTML = audio.muted ? '🔇' : '🎵';
+        document.removeEventListener('click',      onInteract);
+        document.removeEventListener('touchstart', onInteract);
+      }
+      document.addEventListener('click',      onInteract, { passive: true });
+      document.addEventListener('touchstart', onInteract, { passive: true });
+    });
   }
 
-  // Inject immediately if body exists, otherwise wait
   if (document.body) {
     injectBtn();
   } else {
